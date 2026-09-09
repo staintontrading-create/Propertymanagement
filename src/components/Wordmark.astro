@@ -1,0 +1,79 @@
+---
+/**
+ * Text-only brand mark. There is no logo image; the company name from config
+ * is set in Fraunces. Long names step down in size so the header never wraps.
+ */
+import { site } from '../config/site';
+import { url } from '../lib/url';
+
+interface Props {
+  size?: 'default' | 'large';
+  link?: boolean;
+  class?: string;
+}
+
+const { size = 'default', link = true, class: className } = Astro.props;
+const length = site.name.length;
+const lengthClass = length > 26 ? 'wordmark--xlong' : length > 18 ? 'wordmark--long' : '';
+---
+
+{link ? (
+  <a href={url('/')} class:list={['wordmark', `wordmark--${size}`, lengthClass, className]} aria-label={`${site.name}, home`}>
+    <span class="wordmark__text">{site.name}</span>
+  </a>
+) : (
+  <span class:list={['wordmark', `wordmark--${size}`, lengthClass, className]}>
+    <span class="wordmark__text">{site.name}</span>
+  </span>
+)}
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 36;
+    font-size: var(--step-1);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--tone-heading);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .wordmark__text::after {
+    content: '';
+    display: inline-block;
+    width: 0.32em;
+    height: 0.32em;
+    margin-inline-start: 0.22em;
+    border-radius: 50%;
+    background: var(--tone-rule);
+    vertical-align: baseline;
+  }
+
+  .wordmark--long {
+    font-size: var(--step-0);
+  }
+
+  .wordmark--xlong {
+    font-size: var(--step--1);
+    white-space: normal;
+    max-width: 14rem;
+  }
+
+  .wordmark--large {
+    font-size: var(--step-2);
+  }
+
+  .wordmark--large.wordmark--long {
+    font-size: var(--step-1);
+  }
+
+  .wordmark--large.wordmark--xlong {
+    font-size: var(--step-0);
+    max-width: none;
+  }
+</style>

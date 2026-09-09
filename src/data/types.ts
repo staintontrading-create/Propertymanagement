@@ -66,20 +66,25 @@ export interface Service {
   navLabel: string;
   /** Category eyebrow shown above the h1, e.g. "For new-build buyers" */
   eyebrow: string;
-  /** One sentence under the h1: the promise, in plain language. */
+  /**
+   * One short sentence in the hero and on cards, e.g.
+   * "Small jobs, fixed properly, priced before we start."
+   */
+  headline: string;
+  /** One or two sentences under the headline stating what the owner gets. */
   promise: string;
-  /** One or two sentences for cards and the services overview. */
-  summary: string;
+  /** Card line after "Typical for:", e.g. "a flat you let out while living abroad". */
+  typicalFor: string;
   /** Unique meta description, under 160 characters. */
   metaDescription: string;
   icon: IconName;
-  /** Two or three owner situations this service is designed for. */
+  /** Three owner situations this service is designed for. */
   audience: OwnerSituation[];
   /** Concrete tasks that are part of the service. */
   included: IncludedItem[];
   /** What is handled separately, with links to the sibling service. */
   notIncluded: ExcludedItem[];
-  /** Three to six service-specific steps, each with a visible output. */
+  /** Four to six service-specific steps, each with a visible output. */
   steps: ProcessStep[];
   /** What the owner receives: report formats, cadence, records. */
   deliverables: Deliverable[];
@@ -95,7 +100,11 @@ export interface Service {
   faqs: Faq[];
   /** Two or three related services, by slug. */
   related: ServiceSlug[];
-  /** Photo slots reserved on the page, with the intended shot described. */
+  /**
+   * Exactly three photo slots reserved on the page, with the intended shot
+   * described. Slot 0 sits beside the reporting section, slots 1 and 2 form
+   * the "On site" band.
+   */
   photoSlots: {
     label: string;
     ratio: '16/9' | '4/3' | '3/2';

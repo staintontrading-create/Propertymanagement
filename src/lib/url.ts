@@ -23,3 +23,23 @@ export function absoluteUrl(path: string, site: URL | undefined): string {
   if (!site) return url(path);
   return new URL(url(path), site).toString();
 }
+
+/**
+ * The current page's path without the base prefix, always with a trailing
+ * slash, so components can compare against site-relative paths like '/about/'.
+ */
+export function currentPath(pageUrl: URL): string {
+  let p = pageUrl.pathname;
+  if (BASE && p.startsWith(BASE)) p = p.slice(BASE.length);
+  if (!p.startsWith('/')) p = `/${p}`;
+  if (!p.endsWith('/')) p = `${p}/`;
+  return p;
+}
+
+/** True when `path` (site-relative, e.g. '/services/') is the current page or an ancestor section. */
+export function isActive(pageUrl: URL, path: string, exact = false): boolean {
+  const current = currentPath(pageUrl);
+  const target = path.endsWith('/') ? path : `${path}/`;
+  if (exact || target === '/') return current === target;
+  return current === target || current.startsWith(target);
+}

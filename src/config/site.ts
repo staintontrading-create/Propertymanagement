@@ -19,10 +19,10 @@ export interface SiteConfig {
   locale: string;
   /**
    * Optional description of where the company operates, e.g. "the Algarve" or
-   * "Dubai Marina and JBR". Rendered in the footer and contact page only when set.
-   * PLACEHOLDER (empty string hides it).
+   * "Dubai Marina and JBR". Rendered in the hero eyebrow, footer and contact
+   * page only when set. PLACEHOLDER (empty string hides it).
    */
-  serviceArea: string;
+  areasCovered: string;
   contact: {
     /** Human-readable phone number. PLACEHOLDER. */
     phoneDisplay: string;
@@ -61,8 +61,8 @@ export const site: SiteConfig = {
   tagline: 'Property management, maintenance and rentals, handled',
   description:
     'Property management for owners who are not always on site: maintenance, renovations, short-term rentals, handovers, inspections and holiday-home care.',
-  locale: 'en',
-  serviceArea: '', // PLACEHOLDER: e.g. "the Costa del Sol"
+  locale: 'en-GB',
+  areasCovered: '', // PLACEHOLDER: e.g. "the Costa del Sol"
   contact: {
     phoneDisplay: '+00 000 000 000', // PLACEHOLDER
     phoneE164: '+00000000000', // PLACEHOLDER
@@ -80,6 +80,11 @@ export const site: SiteConfig = {
     booking: '',
   },
 };
+
+/** True when the configured WhatsApp number looks like an international number (7 to 15 digits). */
+export function hasWhatsApp(): boolean {
+  return /^\d{7,15}$/.test(site.contact.whatsappNumber);
+}
 
 /** wa.me link with an optional pre-filled message. */
 export function whatsappUrl(message?: string): string {
