@@ -1,0 +1,103 @@
+/**
+ * Content model for the seven services.
+ *
+ * Every service detail page is rendered from one `Service` object by
+ * src/pages/services/[slug].astro, so the shape below is the contract between
+ * the content (src/data/services.ts) and the template. All copy fields are
+ * plain text; no HTML is injected.
+ */
+
+export type IconName =
+  | 'property-management'
+  | 'handyman'
+  | 'renovations'
+  | 'short-term-rentals'
+  | 'property-handovers'
+  | 'property-inspections'
+  | 'holiday-home-maintenance';
+
+export type ServiceSlug = IconName;
+
+export interface OwnerSituation {
+  /** Short label, e.g. "You live abroad" */
+  title: string;
+  /** One or two sentences in the second person describing the situation. */
+  text: string;
+}
+
+export interface IncludedItem {
+  /** The task, phrased as a concrete action, e.g. "Meter readings recorded" */
+  title: string;
+  /** What that means in practice: who, when, how the owner hears about it. */
+  detail: string;
+}
+
+export interface ExcludedItem {
+  /** What is not part of this service, and how it is handled instead. */
+  text: string;
+  /** Sibling service that covers it, rendered as a link when set. */
+  seeService?: ServiceSlug;
+}
+
+export interface ProcessStep {
+  title: string;
+  text: string;
+  /** The visible output of the step, shown as "You receive: ...". */
+  youReceive: string;
+}
+
+export interface Deliverable {
+  title: string;
+  detail: string;
+}
+
+export interface Faq {
+  question: string;
+  answer: string;
+}
+
+export interface Service {
+  slug: ServiceSlug;
+  /** Two-digit index used in navigation and eyebrows, "01" to "07". */
+  code: string;
+  /** Page title and card heading, e.g. "Property handovers" */
+  name: string;
+  /** Short label for navigation and the footer when the name is long. */
+  navLabel: string;
+  /** Category eyebrow shown above the h1, e.g. "For new-build buyers" */
+  eyebrow: string;
+  /** One sentence under the h1: the promise, in plain language. */
+  promise: string;
+  /** One or two sentences for cards and the services overview. */
+  summary: string;
+  /** Unique meta description, under 160 characters. */
+  metaDescription: string;
+  icon: IconName;
+  /** Two or three owner situations this service is designed for. */
+  audience: OwnerSituation[];
+  /** Concrete tasks that are part of the service. */
+  included: IncludedItem[];
+  /** What is handled separately, with links to the sibling service. */
+  notIncluded: ExcludedItem[];
+  /** Three to six service-specific steps, each with a visible output. */
+  steps: ProcessStep[];
+  /** What the owner receives: report formats, cadence, records. */
+  deliverables: Deliverable[];
+  /** How the owner is kept informed: cadence, format and channel. */
+  reporting: {
+    cadence: string;
+    format: string;
+    channel: string;
+  };
+  /** How the service is priced and what the written scope contains. No figures. */
+  pricing: string;
+  /** Four to six questions owners actually ask, with specific answers. */
+  faqs: Faq[];
+  /** Two or three related services, by slug. */
+  related: ServiceSlug[];
+  /** Photo slots reserved on the page, with the intended shot described. */
+  photoSlots: {
+    label: string;
+    ratio: '16/9' | '4/3' | '3/2';
+  }[];
+}
