@@ -24,6 +24,8 @@ interface Props {
   /** JSON-LD structured data, one object or several. */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   bodyClass?: string;
+  /** Ask search engines not to index this page (the 404 page). */
+  noindex?: boolean;
 }
 
 const {
@@ -35,6 +37,7 @@ const {
   showContactBar = true,
   jsonLd,
   bodyClass,
+  noindex = false,
 } = Astro.props;
 
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name}: ${site.tagline}`;
@@ -49,6 +52,7 @@ const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:type" content={ogType} />

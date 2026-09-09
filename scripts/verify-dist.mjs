@@ -111,7 +111,7 @@ const titles = new Map();
 const descriptions = new Map();
 
 for (const [route, page] of pages) {
-  const { html, ids, dupIds, rel } = page;
+  const { html, dupIds, rel } = page;
   const is404 = rel === '404.html';
   const all = tags(html);
 

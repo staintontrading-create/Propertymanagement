@@ -58,7 +58,7 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   name: 'Stainton Property Management', // PLACEHOLDER: derived from the GitHub account name
   legalName: 'Stainton Property Management', // PLACEHOLDER
-  tagline: 'Property management, maintenance and rentals, handled',
+  tagline: 'Property care for owners who are not there',
   description:
     'Property management for owners who are not always on site: maintenance, renovations, short-term rentals, handovers, inspections and holiday-home care.',
   locale: 'en-GB',

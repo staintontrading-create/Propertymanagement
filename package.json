@@ -12,8 +12,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "lint:copy": "node scripts/lint-copy.mjs",
     "verify": "node scripts/verify-dist.mjs",
-    "test": "npm run check && npm run build && npm run verify"
+    "test": "npm run lint:copy && npm run check && npm run build && npm run verify"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

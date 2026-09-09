@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Hero from '../../components/Hero.astro';
+import Button from '../../components/Button.astro';
+import Section from '../../components/Section.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import ServicesGrid from '../../components/ServicesGrid.astro';
+import Ledger from '../../components/Ledger.astro';
+import QuoteRequestPanel from '../../components/QuoteRequestPanel.astro';
+import { processSteps } from '../../data/process';
+import { url } from '../../lib/url';
+
+const description =
+  'Seven services for owners who are not on site: property management, handyman work, renovations, short-term rentals, handovers, inspections and holiday-home care.';
+---
+
+<BaseLayout title="Services" description={description} path="/services/">
+  <div class="container breadcrumb-row">
+    <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Services' }]} />
+  </div>
+
+  <Hero
+    variant="page"
+    eyebrow="What we do"
+    title="Seven services. One point of contact."
+    lead="Everything below is done by the same people, reported the same way, and paid for against a scope you have already read."
+  >
+    <Fragment slot="actions">
+      <Button href={url('/contact/')}>Talk to us</Button>
+      <Button variant="link" href="#quote">Ask for a written scope</Button>
+    </Fragment>
+  </Hero>
+
+  <Section padding="tight">
+    <SectionHeading
+      eyebrow="The seven services"
+      title="Grouped by what you need from us."
+      lead="Most owners start with one service and add others as the property, the tenants or the guests need them. Each page says what is included, what is arranged separately, and what you receive at every step."
+      align="split"
+    />
+    <ServicesGrid headingLevel={3} />
+  </Section>
+
+  <Section tone="sunken" id="how-we-work">
+    <div class="split">
+      <SectionHeading eyebrow="How we work" title="Every step ends with something in your inbox." />
+      <Ledger steps={processSteps} />
+    </div>
+  </Section>
+
+  <Section>
+    <SectionHeading
+      eyebrow="Already know what you need?"
+      title="Ask for a written scope."
+      lead="Tell us about the property and the service you have in mind. You receive a scope with costs and your approval threshold in writing, and nothing starts until you have read it."
+      align="split"
+    />
+    <QuoteRequestPanel id="quote" heading="Tell us about the property" />
+  </Section>
+</BaseLayout>

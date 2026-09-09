@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import { site, mailtoUrl } from '../config/site';
+
+/**
+ * Privacy notice. The statements about how the site itself behaves (no
+ * cookies, no analytics, self-hosted fonts, what the forms send) describe
+ * this build and stay true as long as the site is not changed. The items
+ * marked "To confirm before launch" depend on decisions only the owner can
+ * make and must be completed before the site goes live.
+ */
+const description = 'What this website collects when you use the contact and quote forms, how it is used, how long it is kept and how to ask for it to be corrected or deleted.';
+const updated = '9 September 2026';
+---
+
+<BaseLayout title="Privacy notice" description={description} path="/privacy/" showContactBar={false}>
+  <div class="container breadcrumb-row">
+    <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Privacy notice' }]} />
+  </div>
+
+  <Hero variant="page" eyebrow="Legal" title="Privacy notice." lead="What this site collects, what we do with it, and how to ask us to change or delete it." />
+
+  <Section padding="tight">
+    <div class="prose measure">
+      <p class="notice">
+        <strong>Draft.</strong> This notice describes how the site is built. The lines marked <em>to confirm before launch</em> must be completed by {site.legalName} before the site goes live.
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        This website is operated by {site.legalName}. If you have a question about this notice or about the information we hold about you, write to
+        <a href={mailtoUrl('Privacy question')}>{site.contact.email}</a>.
+      </p>
+      <p class="confirm">To confirm before launch: the registered name, address and any registration number of the business.</p>
+
+      <h2>What we collect</h2>
+      <p>
+        The only information this site collects is what you type into the contact form or the quote request form: your name, your email address, a phone number if you give one, how you prefer to be contacted, the type and location of your property, the service you are asking about, and your message.
+      </p>
+      <p>Nothing is collected when you simply read the site. There is no account to create and no newsletter to join.</p>
+
+      <h2>How we use it</h2>
+      <p>
+        We use what you send to reply to you, to arrange a call or a visit, and to prepare a written scope. If you become a client, it becomes part of the property folder we keep for you. We do not sell it, pass it to anyone for marketing, or add you to a mailing list.
+      </p>
+
+      <h2>Where it goes</h2>
+      <p>
+        When you submit a form, its contents are delivered to us by email, or through a form-delivery service acting on our behalf, and kept in our email and property records.
+      </p>
+      <p class="confirm">To confirm before launch: the name of the form-delivery service, if one is used, and where the records are stored.</p>
+
+      <h2>Cookies, analytics and third parties</h2>
+      <p>
+        This site sets no cookies and runs no analytics or advertising scripts. The fonts are served from this site rather than from a third party, so reading a page does not send your details to anyone else.
+      </p>
+      <p>
+        The company that hosts the site records standard server logs (the address your device connects from, the browser used and the pages requested) for security and reliability.
+      </p>
+      <p class="confirm">To confirm before launch: the name of the hosting provider and how long it keeps server logs.</p>
+
+      <h2>How long we keep it</h2>
+      <p>
+        An enquiry that does not lead to work is deleted once it has been dealt with. Client records are kept for as long as we look after the property, and afterwards for the period that tax and accounting rules require.
+      </p>
+      <p class="confirm">To confirm before launch: the exact retention periods for enquiries and client records.</p>
+
+      <h2>Your rights</h2>
+      <p>
+        You can ask to see the information we hold about you, to have it corrected, or to have it deleted. Write to
+        <a href={mailtoUrl('Data request')}>{site.contact.email}</a> and we will answer in writing. If you are not satisfied with our answer, you can complain to the data-protection authority where you live.
+      </p>
+
+      <h2>Changes to this notice</h2>
+      <p>If this notice changes, the date below is updated. Last updated: {updated} (draft).</p>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .notice {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius);
+    background: var(--color-surface-raised);
+  }
+
+  .confirm {
+    font-size: var(--step--1);
+    color: var(--color-warning);
+  }
+</style>

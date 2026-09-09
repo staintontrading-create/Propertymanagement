@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PlanGrid from '../components/PlanGrid.astro';
+import Glyph from '../components/Glyph.astro';
+import Button from '../components/Button.astro';
+import ServiceIndex from '../components/ServiceIndex.astro';
+import ContactDetails from '../components/ContactDetails.astro';
+import { url } from '../lib/url';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="The page you asked for is not here. The services and contact details are below."
+  path="/404.html"
+  showContactStrip={false}
+  showContactBar={false}
+  noindex
+>
+  <section class="not-found" aria-labelledby="page-title">
+    <PlanGrid position="full" />
+    <div class="container not-found__inner">
+      <div class="not-found__copy">
+        <Glyph name="house" size={64} class="not-found__glyph" />
+        <span class="rule" aria-hidden="true"></span>
+        <p class="eyebrow">Page not found</p>
+        <h1 id="page-title">This page is not where we left it.</h1>
+        <p class="lead">The services and contact details are below.</p>
+        <div class="not-found__actions">
+          <Button href={url('/')}>Go to the home page</Button>
+          <Button variant="link" href={url('/contact/')}>Talk to us</Button>
+        </div>
+      </div>
+      <div class="not-found__aside">
+        <ServiceIndex heading="The seven things we do" label="All seven services" />
+        <div class="not-found__contact">
+          <ContactDetails compact />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-section);
+  }
+
+  .not-found__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  :global(.not-found__glyph) {
+    color: var(--color-primary);
+    margin-block-end: var(--space-3);
+  }
+
+  .not-found__copy .eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  .not-found__copy h1 {
+    max-width: var(--measure-heading);
+  }
+
+  .not-found__copy .lead {
+    margin-block-start: var(--space-3);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-block-start: var(--space-4);
+  }
+
+  .not-found__contact {
+    margin-block-start: var(--space-5);
+  }
+
+  @media (min-width: 56rem) {
+    .not-found__inner {
+      grid-template-columns: 6fr 5fr;
+      align-items: start;
+    }
+
+    .not-found__aside {
+      grid-column: 8 / 13;
+    }
+  }
+</style>

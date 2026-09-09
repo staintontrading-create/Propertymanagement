@@ -631,3 +631,29 @@ select.input {
   opacity: 0.7;
   pointer-events: none;
 }
+
+/* ------------------------------------------------------------------------
+   Page-level layout helpers
+   ------------------------------------------------------------------------ */
+/* Breadcrumb trail sitting above a page hero */
+.breadcrumb-row {
+  padding-block-start: var(--space-3);
+}
+
+/* Editorial split: heading block in the left five columns, content in the right six */
+.split {
+  display: grid;
+  gap: var(--space-5) var(--gutter);
+}
+
+@media (min-width: 56rem) {
+  .split {
+    grid-template-columns: 5fr 6fr;
+    align-items: start;
+  }
+
+  .split > :first-child {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}
