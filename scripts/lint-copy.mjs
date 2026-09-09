@@ -95,11 +95,18 @@ function views(file, raw) {
   return { strings, text: text || blank(raw) };
 }
 
-/** Single-word literals (enum values, class names, keys) are code, not prose. */
-function proseStrings(strings) {
-  return strings.replace(STRING_RE, () => '').length === strings.length
-    ? strings
-    : strings;
+/** Position-preserving view keeping only string literals that contain whitespace. */
+function proseView(file, raw) {
+  const source = file.endsWith('.astro')
+    ? raw.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, blank).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, blank).replace(/\/\*[\s\S]*?\*\//g, blank)
+    : raw.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/^\s*\/\/.*$/gm, blank);
+  const arr = blank(source).split('');
+  for (const m of source.matchAll(STRING_RE)) {
+    const inner = m[0].slice(1, -1);
+    if (!/\s/.test(inner)) continue;
+    for (let i = 0; i < inner.length; i++) arr[m.index + 1 + i] = inner[i];
+  }
+  return arr.join('');
 }
 
 const findings = [];
@@ -110,20 +117,8 @@ for (const file of files) {
   const rel = path.relative(root, file);
   const { strings, text } = views(file, raw);
   const lineOf = (index) => raw.slice(0, index).split('\n').length;
-  // prose-only view of the strings: blank out literals with no whitespace
-  const proseArr = strings.split('');
-  for (const m of strings.matchAll(/\S+/g)) {
-    // a run without spaces that is bounded by blanks is a single-token literal
-    const before = strings[m.index - 1] ?? ' ';
-    const after = strings[m.index + m[0].length] ?? ' ';
-    if ((before === ' ' || before === '\n') && (after === ' ' || after === '\n' || after === undefined)) {
-      // check it is a whole literal (no other non-blank neighbours within the literal)
-      const left = strings.lastIndexOf('\n', m.index);
-      const segment = strings.slice(left + 1, strings.indexOf('\n', m.index) === -1 ? undefined : strings.indexOf('\n', m.index));
-      if (segment.trim() === m[0]) for (let i = 0; i < m[0].length; i++) proseArr[m.index + i] = ' ';
-    }
-  }
-  const prose = proseArr.join('');
+  // prose-only view: string literals that contain whitespace (single tokens are code)
+  const prose = proseView(file, raw);
 
   for (const rule of RULES) {
     const sources = rule.proseOnly ? [prose, text] : [strings, text];
