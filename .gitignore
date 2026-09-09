@@ -16,3 +16,6 @@ npm-debug.log*
 
 # verification artefacts
 screenshots/
+
+# workflow worktrees
+.claude/worktrees/

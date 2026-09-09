@@ -1,0 +1,58 @@
+---
+/**
+ * The seven services as cards, grouped under the three quiet group labels.
+ * Each group is its own responsive grid so three-card and two-card rows both
+ * fill the width.
+ */
+import ServiceCard from './ServiceCard.astro';
+import { serviceGroups } from '../data/service-index';
+import { getService } from '../data/services';
+
+interface Props {
+  /** Heading level of the group labels; cards use the next level down. */
+  headingLevel?: 3 | 4;
+  class?: string;
+}
+
+const { headingLevel = 3, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as 'h3' | 'h4';
+const cardLevel = headingLevel === 3 ? 4 : 4;
+---
+
+<div class:list={['services-grid', className]}>
+  {serviceGroups.map((group) => (
+    <section class="services-grid__group" aria-labelledby={`services-group-${group.key}`}>
+      <Heading id={`services-group-${group.key}`} class="services-grid__label">{group.label}</Heading>
+      <div class="services-grid__cards">
+        {group.slugs.map((slug) => (
+          <ServiceCard service={getService(slug)} headingLevel={cardLevel} />
+        ))}
+      </div>
+    </section>
+  ))}
+</div>
+
+<style>
+  .services-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .services-grid__label {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--tone-eyebrow);
+    margin-block-end: var(--space-3);
+    padding-block-end: var(--space-1);
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .services-grid__cards {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+</style>

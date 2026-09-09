@@ -1,0 +1,74 @@
+---
+/**
+ * Breadcrumb trail with BreadcrumbList structured data. The last item is the
+ * current page and is not a link.
+ */
+import Glyph from './Glyph.astro';
+import { absoluteUrl } from '../lib/url';
+
+export interface Crumb {
+  label: string;
+  /** Site-relative path, e.g. '/services/'. Omit for the current page. */
+  path?: string;
+}
+
+interface Props {
+  items: Crumb[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.label,
+    ...(item.path ? { item: absoluteUrl(item.path, Astro.site) } : {}),
+  })),
+};
+---
+
+<nav class:list={['breadcrumb', className]} aria-label="Breadcrumb">
+  <ol class="breadcrumb__list">
+    {items.map((item, i) => (
+      <li class="breadcrumb__item">
+        {i > 0 && <Glyph name="arrow-right" size={14} class="breadcrumb__sep" />}
+        {item.path ? <a href={absoluteUrl(item.path, undefined)}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+      </li>
+    ))}
+  </ol>
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+</nav>
+
+<style>
+  .breadcrumb__list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem var(--space-1);
+    font-size: var(--step--1);
+    color: var(--tone-text-muted);
+  }
+
+  .breadcrumb__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .breadcrumb__sep {
+    color: var(--tone-rule);
+  }
+
+  .breadcrumb a {
+    color: var(--tone-link);
+  }
+
+  .breadcrumb [aria-current='page'] {
+    color: var(--tone-text);
+    font-weight: 500;
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+/**
+ * HTML shell for every page: metadata, fonts, global styles, skip link,
+ * header, main landmark, optional contact strip, footer and the mobile
+ * contact bar.
+ */
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ContactStrip from '../components/ContactStrip.astro';
+import ContactBar from '../components/ContactBar.astro';
+import { site } from '../config/site';
+import { url, absoluteUrl } from '../lib/url';
+
+interface Props {
+  /** Page title without the company name. Omit on the home page. */
+  title?: string;
+  description?: string;
+  /** Site-relative path of this page, e.g. '/about/'. */
+  path: string;
+  ogType?: 'website' | 'article';
+  showContactStrip?: boolean;
+  showContactBar?: boolean;
+  /** JSON-LD structured data, one object or several. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description = site.description,
+  path,
+  ogType = 'website',
+  showContactStrip = true,
+  showContactBar = true,
+  jsonLd,
+  bodyClass,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name}: ${site.tagline}`;
+const canonical = absoluteUrl(path, Astro.site);
+const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#1e3a47" />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+    <link rel="preload" href={url('/fonts/fraunces-normal-400-600-latin.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={url('/fonts/inter-normal-400-700-latin.woff2')} as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    {jsonLdList.map((data) => (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />
+    ))}
+  </head>
+  <body class:list={[bodyClass, { 'has-contact-bar': showContactBar }]}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    {showContactStrip && <ContactStrip />}
+    <Footer />
+    {showContactBar && <ContactBar />}
+  </body>
+</html>

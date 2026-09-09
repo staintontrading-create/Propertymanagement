@@ -1,0 +1,175 @@
+---
+/**
+ * Site footer on the inverse surface: positioning, the seven services with
+ * their index codes, company links, contact details and the legal row. Also
+ * the no-JavaScript fallback target for the Menu button.
+ */
+import Wordmark from './Wordmark.astro';
+import ContactDetails from './ContactDetails.astro';
+import { site } from '../config/site';
+import { services } from '../data/services';
+import { url } from '../lib/url';
+
+const year = new Date().getFullYear();
+const social = [
+  site.links.instagram && { label: 'Instagram', href: site.links.instagram },
+  site.links.facebook && { label: 'Facebook', href: site.links.facebook },
+  site.links.linkedin && { label: 'LinkedIn', href: site.links.linkedin },
+  site.links.airbnb && { label: 'Our Airbnb listings', href: site.links.airbnb },
+  site.links.booking && { label: 'Our Booking.com listings', href: site.links.booking },
+].filter(Boolean) as { label: string; href: string }[];
+---
+
+<footer class="site-footer tone-inverse" id="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <Wordmark size="large" />
+        <p class="site-footer__positioning">Property care for owners who are not there.</p>
+        {site.contact.hours && <p class="site-footer__meta">{site.contact.hours}</p>}
+        {site.areasCovered && <p class="site-footer__meta">Areas covered: {site.areasCovered}</p>}
+      </div>
+
+      <nav class="site-footer__col" aria-labelledby="footer-services">
+        <h2 id="footer-services" class="site-footer__heading">Services</h2>
+        <ul class="list-plain site-footer__list">
+          {services.map((s) => (
+            <li>
+              <a href={url(`/services/${s.slug}/`)}>
+                <span class="site-footer__code tabular" aria-hidden="true">{s.code}</span>
+                {s.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="site-footer__col">
+        <nav aria-labelledby="footer-company">
+          <h2 id="footer-company" class="site-footer__heading">Company</h2>
+          <ul class="list-plain site-footer__list">
+            <li><a href={url('/about/')}>About</a></li>
+            <li><a href={url('/contact/')}>Contact</a></li>
+            <li><a href={url('/privacy/')}>Privacy</a></li>
+            {social.map((s) => (
+              <li>
+                <a href={s.href} rel="noopener" target="_blank">{s.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <h2 class="site-footer__heading">Reach a person</h2>
+        <ContactDetails compact />
+      </div>
+    </div>
+
+    <div class="site-footer__legal">
+      <p>© {year} {site.legalName}</p>
+      <a href={url('/privacy/')}>Privacy notice</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--tone-bg);
+    color: var(--tone-text);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .site-footer__positioning {
+    margin-block-start: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    font-weight: 400;
+    max-width: 24ch;
+  }
+
+  .site-footer__meta {
+    margin-block-start: var(--space-2);
+    font-size: var(--step--1);
+    color: var(--tone-text-muted);
+  }
+
+  .site-footer__heading {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--tone-eyebrow);
+    margin-block-end: var(--space-2);
+  }
+
+  .site-footer__col > * + .site-footer__heading {
+    margin-block-start: var(--space-5);
+  }
+
+  .site-footer__list {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .site-footer__list a {
+    display: inline-flex;
+    gap: 0.5rem;
+    padding-block: 0.25rem;
+    color: var(--tone-text);
+    text-decoration: none;
+  }
+
+  .site-footer__list a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent-on-dark);
+    text-decoration-thickness: 2px;
+  }
+
+  .site-footer__code {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--tone-eyebrow);
+    padding-block-start: 0.15em;
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-block-start: var(--space-8);
+    padding-block-start: var(--space-3);
+    border-top: 1px solid var(--tone-border);
+    font-size: var(--step--1);
+    color: var(--tone-text-muted);
+  }
+
+  .site-footer__legal a {
+    color: var(--tone-text);
+  }
+
+  @media (min-width: 40rem) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .site-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .site-footer__grid {
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: var(--gutter);
+    }
+
+    .site-footer__brand {
+      grid-column: auto;
+    }
+  }
+</style>

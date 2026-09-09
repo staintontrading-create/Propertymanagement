@@ -1,0 +1,159 @@
+---
+/**
+ * Full-screen navigation for small screens, built on a native <dialog> so the
+ * browser provides the focus trap, Escape handling and focus return. Lists the
+ * main pages, the seven services grouped, and the contact routes.
+ */
+import Wordmark from './Wordmark.astro';
+import Glyph from './Glyph.astro';
+import ServiceIndex from './ServiceIndex.astro';
+import ContactDetails from './ContactDetails.astro';
+import { url } from '../lib/url';
+---
+
+<dialog id="mobile-menu" class="mobile-menu" aria-label="Menu">
+  <div class="mobile-menu__panel">
+    <div class="container mobile-menu__bar">
+      <Wordmark />
+      <button class="mobile-menu__close" type="button" data-menu-close>
+        <Glyph name="close" size={22} />
+        <span>Close</span>
+      </button>
+    </div>
+    <nav class="container mobile-menu__nav" aria-label="Mobile">
+      <ul class="list-plain mobile-menu__primary">
+        <li><a href={url('/')}>Home</a></li>
+        <li><a href={url('/services/')}>All services</a></li>
+        <li><a href={url('/about/')}>About</a></li>
+        <li><a href={url('/contact/')}>Contact</a></li>
+      </ul>
+      <ServiceIndex grouped compact level={3} label="Services in menu" class="mobile-menu__services" />
+      <div class="mobile-menu__contact">
+        <p class="eyebrow">Reach a person</p>
+        <ContactDetails compact />
+      </div>
+    </nav>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('mobile-menu') as HTMLDialogElement | null;
+  const openers = document.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
+  if (dialog && openers.length) {
+    const setExpanded = (open: boolean) => openers.forEach((b) => b.setAttribute('aria-expanded', String(open)));
+    const open = () => {
+      dialog.showModal();
+      setExpanded(true);
+      document.documentElement.classList.add('menu-open');
+    };
+    const close = () => {
+      if (dialog.open) dialog.close();
+    };
+    openers.forEach((b) => b.addEventListener('click', open));
+    dialog.querySelectorAll('[data-menu-close], a[href]').forEach((el) => el.addEventListener('click', close));
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+    dialog.addEventListener('close', () => {
+      setExpanded(false);
+      document.documentElement.classList.remove('menu-open');
+    });
+    const wide = window.matchMedia('(min-width: 56rem)');
+    wide.addEventListener('change', (event) => {
+      if (event.matches) close();
+    });
+  }
+</script>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    overflow: hidden;
+  }
+
+  .mobile-menu::backdrop {
+    background: rgba(20, 42, 53, 0.4);
+  }
+
+  .mobile-menu__panel {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-block-end: var(--space-8);
+  }
+
+  .mobile-menu__bar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: var(--header-height);
+    padding-block: var(--space-1);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sticky);
+  }
+
+  .mobile-menu__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-surface-raised);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .mobile-menu__nav {
+    display: grid;
+    gap: var(--space-5);
+    padding-block-start: var(--space-4);
+  }
+
+  .mobile-menu__primary {
+    display: grid;
+  }
+
+  .mobile-menu__primary a {
+    display: block;
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    color: var(--color-primary-strong);
+    text-decoration: none;
+  }
+
+  .mobile-menu__primary li:last-child a {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-menu__contact .eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  :global(html.menu-open) {
+    overflow: hidden;
+  }
+
+  @media (min-width: 56rem) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>

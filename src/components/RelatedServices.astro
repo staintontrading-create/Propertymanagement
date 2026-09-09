@@ -1,0 +1,30 @@
+---
+/**
+ * Two or three service cards chosen per page ("Works well with").
+ */
+import ServiceCard from './ServiceCard.astro';
+import { getService } from '../data/services';
+import type { ServiceSlug } from '../data/types';
+
+interface Props {
+  slugs: ServiceSlug[];
+  headingLevel?: 3 | 4;
+  class?: string;
+}
+
+const { slugs, headingLevel = 3, class: className } = Astro.props;
+---
+
+<div class:list={['related', className]}>
+  {slugs.map((slug) => (
+    <ServiceCard service={getService(slug)} headingLevel={headingLevel} />
+  ))}
+</div>
+
+<style>
+  .related {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  }
+</style>

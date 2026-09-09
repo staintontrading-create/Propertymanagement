@@ -1,0 +1,159 @@
+---
+/**
+ * Page opener. Home and service variants split into copy (left) and a visual
+ * (right) on wide screens with the plan grid behind the visual; the page
+ * variant is copy only.
+ *
+ * Slots: default (extra copy under the lead), `actions` (buttons), `after`
+ * (promise list), `visual` (artefact for wide screens), `visual-mobile`
+ * (replacement below 48rem, e.g. the service index).
+ */
+import PlanGrid from './PlanGrid.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  variant?: 'home' | 'service' | 'page';
+  class?: string;
+}
+
+const { eyebrow, title, lead, variant = 'page', class: className } = Astro.props;
+const hasVisual = Astro.slots.has('visual');
+const hasMobileVisual = Astro.slots.has('visual-mobile');
+---
+
+<section class:list={['hero', `hero--${variant}`, { 'hero--with-visual': hasVisual, 'hero--with-mobile-visual': hasMobileVisual }, className]} aria-labelledby="page-title">
+  {variant !== 'page' && <PlanGrid position="right" />}
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <span class="rule" aria-hidden="true"></span>
+      {eyebrow && <p class="eyebrow hero__eyebrow">{eyebrow}</p>}
+      <h1 id="page-title" class="hero__title">{title}</h1>
+      {lead && <p class="lead hero__lead">{lead}</p>}
+      <slot />
+      {Astro.slots.has('actions') && (
+        <div class="hero__actions">
+          <slot name="actions" />
+        </div>
+      )}
+      {Astro.slots.has('after') && (
+        <div class="hero__after">
+          <slot name="after" />
+        </div>
+      )}
+    </div>
+    {hasVisual && (
+      <div class="hero__visual hero__visual--desktop">
+        <slot name="visual" />
+      </div>
+    )}
+    {hasMobileVisual && (
+      <div class="hero__visual hero__visual--mobile">
+        <slot name="visual-mobile" />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-section-tight) var(--space-section);
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .hero__eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  .hero__title {
+    max-width: var(--measure-heading);
+  }
+
+  .hero--page .hero__title {
+    max-width: 26ch;
+  }
+
+  .hero__lead {
+    margin-block-start: var(--space-3);
+  }
+
+  .hero__copy > :global(p:not(.lead):not(.eyebrow)) {
+    margin-block-start: var(--space-2);
+    max-width: var(--measure);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    margin-block-start: var(--space-4);
+  }
+
+  .hero__after {
+    margin-block-start: var(--space-4);
+    max-width: 36rem;
+  }
+
+  .hero__visual {
+    display: grid;
+    align-content: center;
+  }
+
+  .hero__visual--mobile {
+    display: none;
+  }
+
+  /* Small screens: the mobile visual replaces the desktop artefact when one is provided */
+  @media (max-width: 47.99rem) {
+    .hero--with-mobile-visual .hero__visual--desktop {
+      display: none;
+    }
+
+    .hero--with-mobile-visual .hero__visual--mobile {
+      display: block;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .hero--home .hero__inner,
+    .hero--service .hero__inner {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: center;
+    }
+
+    .hero--home .hero__inner {
+      min-height: calc(80svh - var(--header-height));
+    }
+
+    .hero--home .hero__copy,
+    .hero--service .hero__copy {
+      grid-column: 1 / 7;
+      padding-inline-end: var(--space-4);
+    }
+
+    .hero--home .hero__visual--desktop,
+    .hero--service .hero__visual--desktop {
+      grid-column: 7 / 13;
+      justify-items: end;
+    }
+
+    .hero--page .hero__inner {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .hero--page .hero__copy {
+      grid-column: 1 / 9;
+    }
+  }
+</style>

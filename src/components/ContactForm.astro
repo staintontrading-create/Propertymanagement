@@ -1,0 +1,112 @@
+---
+/**
+ * The contact page form: who you are, how you prefer to be reached, where
+ * the property is, which service you are asking about, and the message.
+ * Posts to the configured endpoint or falls back to email.
+ */
+import Button from './Button.astro';
+import { site, mailtoUrl } from '../config/site';
+import { services } from '../data/services';
+import { url } from '../lib/url';
+import type { ServiceSlug } from '../data/types';
+
+interface Props {
+  preselect?: ServiceSlug;
+  id?: string;
+  class?: string;
+}
+
+const { preselect, id = 'contact-form', class: className } = Astro.props;
+const endpoint = site.formEndpoint;
+const action = endpoint || mailtoUrl('Message from the website');
+const prefix = `${id}-`;
+---
+
+<div class:list={['form-panel', className]} id={id}>
+  <form
+    class="form contact-form"
+    method="post"
+    action={action}
+    enctype={endpoint ? undefined : 'text/plain'}
+    data-enquiry-form
+    data-endpoint={endpoint}
+    data-mailto={site.contact.email}
+    data-subject="Message from the website"
+  >
+    <input type="hidden" name="form" value="contact" />
+    <div class="form-grid">
+      <div class="field">
+        <label class="field__label" for={`${prefix}name`}><span class="field__label-text">Your name</span></label>
+        <input class="input" id={`${prefix}name`} name="name" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}email`}><span class="field__label-text">Email</span></label>
+        <input class="input" id={`${prefix}email`} name="email" type="email" autocomplete="email" required />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}phone`}><span class="field__label-text">Phone or WhatsApp</span> <span class="field__optional">(optional)</span></label>
+        <input class="input" id={`${prefix}phone`} name="phone" type="tel" autocomplete="tel" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}location`}><span class="field__label-text">Property location</span> <span class="field__optional">(optional)</span></label>
+        <input class="input" id={`${prefix}location`} name="property_location" type="text" autocomplete="off" />
+      </div>
+
+      <fieldset class="fieldset field field--full">
+        <legend>How would you prefer to hear back?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="preferred_channel" value="email" checked /> <span>Email</span></label>
+          <label class="choice"><input type="radio" name="preferred_channel" value="phone" /> <span>Phone call</span></label>
+          <label class="choice"><input type="radio" name="preferred_channel" value="whatsapp" /> <span>WhatsApp</span></label>
+        </div>
+      </fieldset>
+
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}service`}><span class="field__label-text">What is it about?</span></label>
+        <select class="input" id={`${prefix}service`} name="service" required>
+          <option value="general" selected={!preselect}>A general question</option>
+          {services.map((s) => (
+            <option value={s.slug} selected={preselect === s.slug}>{s.code} {s.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}message`}><span class="field__label-text">Your message</span></label>
+        <textarea class="input" id={`${prefix}message`} name="message" rows="6" required></textarea>
+      </div>
+
+      <div class="field field--full">
+        <label class="checkbox">
+          <input type="checkbox" name="consent" value="yes" required />
+          <span>I agree to my details being used to reply to this message, as described in the <a href={url('/privacy/')}>privacy notice</a>.</span>
+        </label>
+      </div>
+
+      <div class="visually-hidden" aria-hidden="true">
+        <label for={`${prefix}website`}>Leave this field empty</label>
+        <input id={`${prefix}website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <Button type="submit">Send message</Button>
+      <p class="small muted">You will hear back within one working day, in writing.</p>
+    </div>
+    <p class="form__status" data-form-status aria-live="polite" tabindex="-1"></p>
+  </form>
+</div>
+
+<script>
+  import '../scripts/enquiry-form';
+</script>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--space-4);
+  }
+</style>
