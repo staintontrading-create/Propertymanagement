@@ -1,0 +1,109 @@
+---
+/**
+ * Questions owners ask, as native <details>/<summary> so they work without
+ * JavaScript. The open transition is progressive enhancement via
+ * ::details-content in browsers that support it.
+ */
+import Glyph from './Glyph.astro';
+import type { Faq } from '../data/types';
+
+interface Props {
+  items: Faq[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<div class:list={['faq', className]}>
+  {items.map((item) => (
+    <details class="faq__item">
+      <summary class="faq__question">
+        <span class="faq__question-text">{item.question}</span>
+        <span class="faq__marker" aria-hidden="true">
+          <Glyph name="plus" size={18} class="faq__plus" />
+          <Glyph name="minus" size={18} class="faq__minus" />
+        </span>
+      </summary>
+      <div class="faq__answer">
+        <p>{item.answer}</p>
+      </div>
+    </details>
+  ))}
+</div>
+
+<style>
+  .faq__item {
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .faq__question {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    list-style: none;
+    font-weight: 600;
+    color: var(--tone-heading);
+    cursor: pointer;
+  }
+
+  .faq__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__question:hover .faq__question-text {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.16em;
+  }
+
+  .faq__marker {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-block-start: 0.05rem;
+    border: 1.5px solid var(--tone-rule);
+    border-radius: var(--radius-pill);
+    color: var(--tone-link);
+  }
+
+  .faq__minus,
+  .faq__item[open] .faq__plus {
+    display: none;
+  }
+
+  .faq__item[open] .faq__minus {
+    display: block;
+  }
+
+  .faq__answer {
+    padding-block: 0 var(--space-3);
+    max-width: var(--measure);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .faq__item {
+      interpolate-size: allow-keywords;
+    }
+
+    .faq__item::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height var(--duration) var(--ease),
+        content-visibility var(--duration) allow-discrete;
+    }
+
+    .faq__item[open]::details-content {
+      height: auto;
+    }
+  }
+</style>

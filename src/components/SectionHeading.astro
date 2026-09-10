@@ -1,0 +1,79 @@
+---
+/**
+ * Brass rule, uppercase eyebrow, heading and optional lead paragraph.
+ * `align="split"` places the heading in the left five columns and the lead in
+ * the right six on wide screens (the editorial asymmetric grid).
+ */
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lead?: string;
+  level?: 1 | 2 | 3;
+  align?: 'start' | 'split' | 'center';
+  id?: string;
+  class?: string;
+}
+
+const { eyebrow, title, lead, level = 2, align = 'start', id, class: className } = Astro.props;
+const Heading = `h${level}` as 'h1' | 'h2' | 'h3';
+---
+
+<header class:list={['section-heading', `section-heading--${align}`, className]}>
+  <div class="section-heading__title">
+    <span class="rule" aria-hidden="true"></span>
+    {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+    <Heading id={id}>{title}</Heading>
+  </div>
+  {(lead || Astro.slots.has('default')) && (
+    <div class="section-heading__lead">
+      {lead && <p class="lead">{lead}</p>}
+      <slot />
+    </div>
+  )}
+</header>
+
+<style>
+  .section-heading {
+    display: grid;
+    gap: var(--space-3) var(--gutter);
+    margin-block-end: var(--space-6);
+  }
+
+  .section-heading h1,
+  .section-heading h2,
+  .section-heading h3 {
+    max-width: var(--measure-heading);
+  }
+
+  .section-heading h2 {
+    max-width: 26ch;
+  }
+
+  .eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  .section-heading--center {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .section-heading--center .rule {
+    margin-inline: auto;
+  }
+
+  .section-heading--center .section-heading__lead {
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 56rem) {
+    .section-heading--split {
+      grid-template-columns: 5fr 6fr;
+      align-items: start;
+    }
+
+    .section-heading--split .section-heading__lead {
+      padding-block-end: 0.35rem;
+    }
+  }
+</style>

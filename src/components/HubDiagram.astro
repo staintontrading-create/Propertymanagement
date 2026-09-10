@@ -1,0 +1,230 @@
+---
+/**
+ * The "one named contact" diagram: the owner on the left, the company in the
+ * centre, and the parties it coordinates on the right, joined by hairline
+ * connectors. Nodes are real HTML; only the connectors are SVG. Everything
+ * reads from --tone-* tokens and currentColor, so it recolours inside a
+ * .tone-inverse band without props. Below 40rem it stacks and the connector
+ * layer is hidden.
+ */
+import { site } from '../config/site';
+import Glyph from './Glyph.astro';
+import type { GlyphName } from './Glyph.astro';
+
+interface Props {
+  parties?: string[];
+  class?: string;
+}
+
+const {
+  parties = ['Trades', 'Cleaners', 'Utilities', 'Letting platforms', 'Developer or agent'],
+  class: className,
+} = Astro.props;
+
+const iconFor = (party: string): GlyphName => {
+  const s = party.toLowerCase();
+  if (/trade|handy|repair|plumb|electric/.test(s)) return 'wrench';
+  if (/clean|house|home/.test(s)) return 'house';
+  if (/util|bill|meter|supply/.test(s)) return 'document';
+  if (/let|rent|book|platform|guest/.test(s)) return 'bed';
+  if (/develop|agent|key|build/.test(s)) return 'key';
+  return 'clipboard';
+};
+
+const lower = parties.map((p) => (p.length > 1 && p[1] === p[1].toUpperCase() && /[A-Z]/.test(p[1]) ? p : p.charAt(0).toLowerCase() + p.slice(1)));
+const list = lower.length > 1 ? `${lower.slice(0, -1).join(', ')} and ${lower.at(-1)}` : lower[0] ?? '';
+const label = `The owner talks to one named contact at ${site.name}, who coordinates the ${list}.`;
+
+/* One gently curved connector per party, from the centre node to each chip
+   midpoint. The SVG is stretched to the gap cell, so y is a percentage. */
+const fan = parties
+  .map((_, i) => {
+    const y = (((i + 0.5) / parties.length) * 100).toFixed(1);
+    return `M0 50C45 50 55 ${y} 100 ${y}`;
+  })
+  .join('');
+---
+
+<div class:list={['hub-wrap', className]}>
+<div class="hub" role="img" aria-label={label}>
+  <div class="hub__chip hub__you">
+    <Glyph name="user" size={20} />
+    <span>You</span>
+  </div>
+
+  <div class="hub__link" aria-hidden="true">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+      <path d="M0 50H100" vector-effect="non-scaling-stroke"></path>
+    </svg>
+  </div>
+
+  <div class="hub__centre">
+    <strong class="hub__name">{site.name}</strong>
+    <span class="hub__sub">one named contact</span>
+  </div>
+
+  <div class="hub__link" aria-hidden="true">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+      <path d={fan} vector-effect="non-scaling-stroke"></path>
+    </svg>
+  </div>
+
+  <ul class="hub__parties" aria-hidden="true">
+    {parties.map((party) => (
+      <li>
+        <span class="hub__chip">
+          <Glyph name={iconFor(party)} size={18} />
+          <span>{party}</span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>
+</div>
+
+<style>
+  .hub-wrap {
+    container-type: inline-size;
+    width: 100%;
+  }
+
+  .hub {
+    --hub-chip-bg: var(--color-surface-raised);
+    --hub-chip-fg: var(--color-text);
+    display: grid;
+    grid-template-columns: auto minmax(1.5rem, 1fr) auto minmax(1.75rem, 1.5fr) auto;
+    align-items: center;
+    width: 100%;
+    max-width: 38rem;
+    color: var(--tone-text);
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global(.tone-inverse) .hub,
+  :global(.tone-primary) .hub {
+    --hub-chip-bg: color-mix(in srgb, var(--tone-text) 8%, transparent);
+    --hub-chip-fg: var(--tone-text);
+  }
+
+  .hub__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    max-width: 100%;
+    padding: calc(var(--space-1) - 2px) var(--space-2) calc(var(--space-1) - 2px) calc(var(--space-2) - 0.25rem);
+    border: 1px solid var(--tone-border);
+    border-radius: var(--radius);
+    background: var(--hub-chip-bg);
+    color: var(--hub-chip-fg);
+    font-weight: 500;
+  }
+
+  .hub__you {
+    font-weight: 600;
+  }
+
+  .hub__link {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .hub__link svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-opacity: 0.4;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+
+  .hub__centre {
+    min-width: 8.5rem;
+    max-width: 12rem;
+    padding: var(--space-3) var(--space-2);
+    border: 2px solid var(--tone-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  .hub__name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--step-0);
+    font-weight: 600;
+    line-height: var(--leading-heading);
+    color: var(--color-primary-strong);
+    text-wrap: balance;
+  }
+
+  .hub__sub {
+    display: block;
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+  }
+
+  .hub__parties {
+    display: grid;
+    grid-auto-rows: 1fr;
+    align-self: stretch;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hub__parties li {
+    display: flex;
+    padding-block: 0.25rem;
+  }
+
+  @container (max-width: 32rem) {
+    .hub {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      max-width: none;
+    }
+
+    .hub__link {
+      display: none;
+    }
+
+    .hub__centre,
+    .hub__parties {
+      position: relative;
+      margin-top: var(--space-3);
+    }
+
+    /* Short vertical ticks keep the three groups reading as one chain. */
+    .hub__centre::before,
+    .hub__parties::before {
+      content: '';
+      position: absolute;
+      top: calc(-1 * var(--space-3));
+      left: 50%;
+      width: 1.5px;
+      height: var(--space-3);
+      background: currentColor;
+      transform: translateX(-50%);
+      opacity: 0.4;
+    }
+
+    .hub__parties {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-1);
+    }
+
+    .hub__parties li {
+      padding: 0;
+    }
+  }
+</style>

@@ -1,0 +1,214 @@
+---
+/**
+ * Sticky site header: wordmark, three plain links, phone pill and the primary
+ * call to action. Below 56rem the links move into the MobileMenu dialog behind
+ * a Menu button. A bottom hairline appears once the page has scrolled; without
+ * JavaScript the line is always shown and the Menu button is replaced by a
+ * link to the footer sitemap.
+ */
+import Wordmark from './Wordmark.astro';
+import Button from './Button.astro';
+import Glyph from './Glyph.astro';
+import MobileMenu from './MobileMenu.astro';
+import { site, telUrl, hasPhone } from '../config/site';
+import { url, isActive } from '../lib/url';
+
+const nav = [
+  { label: 'Services', href: '/services/' },
+  { label: 'About', href: '/about/' },
+  { label: 'Contact', href: '/contact/' },
+];
+---
+
+<header class="site-header" id="site-header">
+  <div class="container site-header__inner">
+    <Wordmark class="site-header__brand" />
+
+    <nav class="site-header__nav" aria-label="Primary">
+      <ul class="list-plain site-header__links">
+        {nav.map((item) => (
+          <li>
+            <a href={url(item.href)} aria-current={isActive(Astro.url, item.href, true) ? 'page' : isActive(Astro.url, item.href) ? 'true' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      {hasPhone() && (
+        <a class="site-header__phone" href={telUrl()}>
+          <Glyph name="handset" size={20} />
+          <span class="site-header__phone-label tabular">{site.contact.phoneDisplay}</span>
+        </a>
+      )}
+      <Button href={url('/contact/')} class="site-header__cta">Talk to us</Button>
+      <button class="site-header__menu" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-open>
+        <Glyph name="menu" size={22} />
+        <span>Menu</span>
+      </button>
+      <noscript>
+        <a class="site-header__menu site-header__menu--fallback" href="#site-footer">
+          <Glyph name="menu" size={22} />
+          <span>Menu</span>
+        </a>
+      </noscript>
+    </div>
+  </div>
+</header>
+
+<MobileMenu />
+
+<script>
+  const header = document.getElementById('site-header');
+  if (header) {
+    const update = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-surface);
+    transition: box-shadow var(--duration-fast) var(--ease);
+  }
+
+  .site-header.is-scrolled,
+  :global(html:not(.js)) .site-header {
+    box-shadow: var(--shadow-sticky);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--header-height);
+    padding-block: var(--space-1);
+  }
+
+  .site-header__brand {
+    margin-inline-end: auto;
+  }
+
+  .site-header__nav {
+    display: none;
+  }
+
+  .site-header__links {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .site-header__links a {
+    display: inline-block;
+    padding-block: 0.5rem;
+    font-weight: 500;
+    color: var(--color-text);
+    text-decoration: none;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--color-primary);
+  }
+
+  .site-header__links a:hover,
+  .site-header__links a[aria-current] {
+    text-decoration-line: underline;
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .site-header__phone,
+  .site-header__cta {
+    display: none;
+  }
+
+  .site-header__phone {
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease), background-color var(--duration-fast) var(--ease);
+  }
+
+  .site-header__phone:hover {
+    border-color: var(--color-primary-strong);
+    background: var(--color-surface-sunken);
+  }
+
+  .site-header__menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-surface-raised);
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .site-header__menu[aria-expanded='true'] {
+    background: var(--color-surface-sunken);
+  }
+
+  :global(html:not(.js)) button.site-header__menu {
+    display: none;
+  }
+
+  @media (min-width: 56rem) {
+    .site-header__nav {
+      display: block;
+    }
+
+    .site-header__phone,
+    :global(.site-header__cta.button) {
+      display: inline-flex;
+    }
+
+    .site-header__menu,
+    .site-header noscript {
+      display: none;
+    }
+
+    .site-header__brand {
+      margin-inline-end: var(--space-4);
+    }
+
+    .site-header__nav {
+      margin-inline-end: auto;
+    }
+  }
+
+  /* Between 56rem and 68rem the number would crowd the row: keep the glyph, hide the digits visually only */
+  @media (min-width: 56rem) and (max-width: 67.99rem) {
+    .site-header__phone {
+      padding-inline: 0.75rem;
+    }
+
+    .site-header__phone-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+</style>

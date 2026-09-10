@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Hero from '../components/Hero.astro';
+import Button from '../components/Button.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import PhotoSlot from '../components/PhotoSlot.astro';
+import CheckList from '../components/CheckList.astro';
+import ExcludedList from '../components/ExcludedList.astro';
+import KeysBand from '../components/KeysBand.astro';
+import Ledger from '../components/Ledger.astro';
+import { site } from '../config/site';
+import { processSteps } from '../data/process';
+import { url } from '../lib/url';
+
+const description = 'Run by the people who answer the phone: one named contact per property, a photographed report after every visit, and nothing spent without your yes.';
+---
+
+<BaseLayout title="About" description={description} path="/about/">
+  <div class="container breadcrumb-row">
+    <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'About' }]} />
+  </div>
+
+  <Hero
+    variant="page"
+    eyebrow="About"
+    title="The people who answer the phone."
+    lead={`${site.name} is run by the people who pick up when you call, and who have read the last report on your property before they do.`}
+  >
+    <Fragment slot="actions">
+      <Button href={url('/contact/')}>Talk to us</Button>
+      <Button variant="link" href={url('/services/')}>See the seven services</Button>
+    </Fragment>
+  </Hero>
+
+  <Section padding="tight">
+    <div class="about">
+      <div class="about__text flow">
+        <span class="rule" aria-hidden="true"></span>
+        <p class="eyebrow">One named contact</p>
+        <h2>What that means in practice.</h2>
+        <p>
+          When you call, message or write, you reach a person with a name, not a queue. That person has your property folder open: the scope you approved, the approval threshold you set, the last report and its photographs, and the key log.
+        </p>
+        <p>
+          They coordinate everyone else on your behalf: the handyman, the cleaner, the pool and garden contractors, the electrician, the letting platforms and, when there is one, the developer or the agent. You do not need to know who did what. You need to know that it was done, and you receive that in writing.
+        </p>
+        <p>
+          We would rather tell you what we do not do than promise everything. Every service page lists what is arranged separately and who covers it, and nothing is spent above your approval threshold without a message from us and a yes from you.
+        </p>
+      </div>
+      <div class="about__photos">
+        <PhotoSlot ratio="4/5" label="Photo: the person who answers the phone" />
+        <PhotoSlot ratio="3/2" label="Photo: office or vehicle" />
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="sunken" id="commitments">
+    <SectionHeading eyebrow="Commitments" title="What we will always do, and what we will not." align="split" lead="Every promise on this site is something we control. There are no outcome figures, ratings or client counts here, because none of those would tell you how your property will be looked after." />
+    <div class="commitments">
+      <div>
+        <h3 class="commitments__heading">Always</h3>
+        <CheckList
+          ruled
+          items={[
+            'Reply within one working day, in writing',
+            'Send a dated report with photographs after every visit or job',
+            'Put every cost in a written scope before work starts',
+            'Ask before spending anything above your approval threshold',
+            'Log every key movement with a date, a name and a reason',
+            'Meet contractors at the door, supervise them and let them out',
+            'Send a monthly summary of visits, spend and what is coming up',
+          ]}
+        />
+      </div>
+      <div>
+        <h3 class="commitments__heading">Never</h3>
+        <ExcludedList
+          items={[
+            { text: 'Promise a result we do not control, such as a rental income, a sale price or a timescale that depends on a third party.' },
+            { text: 'Start work, or pay a bill above your threshold, without a message from us and a yes from you.' },
+            { text: 'Hand your keys to a contractor, or store them with anything that identifies your property.' },
+            { text: 'Quote a price verbally and expect you to remember it. If it is not in writing, it is not agreed.' },
+          ]}
+        />
+      </div>
+    </div>
+  </Section>
+
+  <KeysBand />
+
+  <Section id="how-we-work">
+    <div class="split">
+      <SectionHeading eyebrow="How we work" title="Every step ends with something in your inbox." />
+      <Ledger steps={processSteps} />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .about__text .eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  .about__text h2 {
+    max-width: 22ch;
+    margin-block-end: var(--space-3);
+  }
+
+  .about__text p:not(.eyebrow) {
+    max-width: var(--measure);
+  }
+
+  .about__photos {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: minmax(0, 18rem);
+  }
+
+  .commitments {
+    display: grid;
+    gap: var(--space-5) var(--gutter);
+  }
+
+  .commitments__heading {
+    font-size: var(--step-1);
+    margin-block-end: var(--space-3);
+  }
+
+  @media (min-width: 56rem) {
+    .about {
+      grid-template-columns: 7fr 5fr;
+      align-items: start;
+    }
+
+    .about__photos {
+      justify-content: end;
+    }
+
+    .commitments {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+/**
+ * The dark band that ends every page except contact and 404: the one-contact
+ * promise with the three ways to reach a person.
+ */
+import Wordmark from './Wordmark.astro';
+import ContactDetails from './ContactDetails.astro';
+import PlanGrid from './PlanGrid.astro';
+import Button from './Button.astro';
+import { site } from '../config/site';
+import { url } from '../lib/url';
+---
+
+<section class="contact-strip tone-inverse" aria-labelledby="contact-strip-heading">
+  <PlanGrid position="right" />
+  <div class="container contact-strip__inner">
+    <div class="contact-strip__intro">
+      <Wordmark link={false} size="large" />
+      <span class="rule" aria-hidden="true"></span>
+      <h2 id="contact-strip-heading">One number, one email, one person.</h2>
+      <p class="contact-strip__lead">
+        Call, message or write. You reach someone who knows your property and has read the last report on it. You will hear back within one working day, in writing.
+      </p>
+      <Button href={url('/contact/')} variant="paper" class="contact-strip__cta">Talk to us</Button>
+    </div>
+    <div class="contact-strip__details">
+      <ContactDetails whatsappMessage={`Hello ${site.name}, I would like to talk about my property.`} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-strip {
+    position: relative;
+    background: var(--tone-bg);
+    color: var(--tone-text);
+    padding-block: var(--space-section);
+    overflow: hidden;
+  }
+
+  .contact-strip__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  /* The grid backdrop sits under the text on narrow screens; keep it to wide layouts */
+  .contact-strip :global(.plan-grid) {
+    display: none;
+  }
+
+  .contact-strip__intro .rule {
+    margin-block: var(--space-4) var(--space-2);
+  }
+
+  .contact-strip__intro h2 {
+    max-width: 18ch;
+  }
+
+  .contact-strip__lead {
+    margin-block-start: var(--space-3);
+    max-width: 44ch;
+    color: var(--tone-text-muted);
+  }
+
+  :global(.contact-strip__cta) {
+    margin-block-start: var(--space-4);
+  }
+
+  @media (min-width: 56rem) {
+    .contact-strip :global(.plan-grid) {
+      display: block;
+    }
+
+    .contact-strip__inner {
+      grid-template-columns: 6fr 5fr;
+      gap: var(--gutter);
+      align-items: center;
+    }
+  }
+</style>

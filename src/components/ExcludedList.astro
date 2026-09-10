@@ -1,0 +1,102 @@
+---
+/**
+ * "Arranged separately": what a service does not include, each row with a
+ * warning-coloured dash marker and, where a sibling service covers it, a
+ * "See 0X Name" link. Mirrors the SpecTable rows so the two read as one
+ * table with different markers.
+ */
+import Glyph from './Glyph.astro';
+import { getService } from '../data/services';
+import { url } from '../lib/url';
+import type { ExcludedItem } from '../data/types';
+
+interface Props {
+  items: ExcludedItem[];
+  /** Optional heading rendered above the list. */
+  caption?: string;
+  captionLevel?: 3 | 4;
+  class?: string;
+}
+
+const { items, caption, captionLevel = 3, class: className } = Astro.props;
+const Caption = `h${captionLevel}` as 'h3' | 'h4';
+const rows = items.map((item) => {
+  const sibling = item.seeService ? getService(item.seeService) : undefined;
+  return {
+    text: item.text,
+    link: sibling ? { label: `See ${sibling.code} ${sibling.name}`, href: url(`/services/${sibling.slug}/`) } : undefined,
+  };
+});
+---
+
+<div class:list={['excluded', className]}>
+  {caption && <Caption class="excluded__caption">{caption}</Caption>}
+  <ul class="excluded__list" role="list">
+    {rows.map((row) => (
+      <li class="excluded__row">
+        <span class="excluded__marker" aria-hidden="true"><Glyph name="dash" size={16} strokeWidth={2} /></span>
+        <div class="excluded__body">
+          <p>{row.text}</p>
+          {row.link && (
+            <a class="excluded__link" href={row.link.href}>
+              {row.link.label}
+              <Glyph name="arrow-right" size={16} />
+            </a>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .excluded__caption {
+    font-size: var(--step-1);
+    margin-block-end: var(--space-3);
+  }
+
+  .excluded__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .excluded__row {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .excluded__row:last-child {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .excluded__marker {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-block-start: 0.1em;
+    color: var(--color-warning);
+  }
+
+  .excluded__body {
+    display: grid;
+    gap: var(--space-1);
+    max-width: var(--measure);
+  }
+
+  .excluded__link {
+    display: inline;
+    font-weight: 600;
+    text-decoration-color: var(--tone-rule);
+    text-underline-offset: 0.2em;
+  }
+
+  .excluded__link :global(svg) {
+    vertical-align: middle;
+    margin-inline-start: 0.35em;
+  }
+</style>

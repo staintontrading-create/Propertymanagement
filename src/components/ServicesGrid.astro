@@ -1,0 +1,82 @@
+---
+/**
+ * The seven services as cards, grouped under the three quiet group labels.
+ * Each group is its own responsive grid so three-card and two-card rows both
+ * fill the width.
+ */
+import ServiceCard from './ServiceCard.astro';
+import { serviceGroups } from '../data/service-index';
+import { getService } from '../data/services';
+
+interface Props {
+  /** Heading level of the group labels; cards use h4. */
+  headingLevel?: 3;
+  class?: string;
+}
+
+const { headingLevel = 3, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as 'h3';
+---
+
+<div class:list={['services-grid', className]}>
+  {serviceGroups.map((group) => (
+    <section class="services-grid__group" aria-labelledby={`services-group-${group.key}`}>
+      <Heading id={`services-group-${group.key}`} class="services-grid__label">{group.label}</Heading>
+      <div class:list={['services-grid__cards', { 'services-grid__cards--featured': group.slugs.length === 3 }]}>
+        {group.slugs.map((slug, i) => (
+          <ServiceCard service={getService(slug)} headingLevel={4} featured={group.slugs.length === 3 && i === 0} />
+        ))}
+      </div>
+    </section>
+  ))}
+</div>
+
+<style>
+  .services-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .services-grid__label {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--tone-eyebrow);
+    margin-block-end: var(--space-3);
+    padding-block-end: var(--space-1);
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .services-grid__cards {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .services-grid__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* A three-card group: the featured card takes the full first row, so no card is orphaned.
+       :global() because the card is a child component root and does not carry this scope. */
+    .services-grid__cards--featured > :global(:first-child) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .services-grid__cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* The featured card keeps the full first row (laid out in two columns inside,
+       see ServiceCard); the other two sit below it, leaving the third column empty
+       like the two-card groups do. */
+    .services-grid__cards--featured > :global(:first-child) {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,199 @@
+---
+/**
+ * The example visit report an owner receives: a white card with a header,
+ * a reserved photograph, a checked list and a "sent" footer. Real HTML text
+ * throughout so it reflows and stays selectable. It is a raised panel, so it
+ * resets the tone tokens and stays a white card with dark text on dark bands.
+ */
+import Glyph from './Glyph.astro';
+import PhotoSlot from './PhotoSlot.astro';
+
+interface Props {
+  title?: string;
+  visitLabel?: string;
+  photoLabel?: string;
+  photoCaption?: string;
+  rows?: string[];
+  footer?: string;
+  /** Fade and rise once on load (motion-safe only). */
+  animated?: boolean;
+  /** Rotate -2deg from 56rem up (home hero). */
+  tilt?: boolean;
+  class?: string;
+}
+
+const {
+  title = 'Visit report',
+  visitLabel = 'Visit 04 of 12',
+  photoLabel = 'front elevation',
+  photoCaption = 'Front elevation, all clear',
+  rows = [
+    'Exterior and roofline',
+    'Water, heating and electrics',
+    'Windows, doors and locks',
+    'Post and deliveries',
+    'Garden and outdoor areas',
+  ],
+  footer = 'Report sent to owner, 14:32',
+  animated = false,
+  tilt = false,
+  class: className,
+} = Astro.props;
+
+const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const count = words[rows.length] ?? String(rows.length);
+const ariaLabel = `Example ${title.toLowerCase()} with a photograph placeholder, ${count} checked item${
+  rows.length === 1 ? '' : 's'
+} and a sent time`;
+---
+
+<div
+  class:list={['report', { 'report--animated': animated, 'report--tilt': tilt }, className]}
+  role="img"
+  aria-label={ariaLabel}
+>
+  <div class="report__inner" aria-hidden="true">
+    <div class="report__head">
+      <Glyph name="house" size={24} class="report__house" />
+      <span class="report__title">{title}</span>
+      <span class="report__visit">{visitLabel}</span>
+    </div>
+    <div class="report__photo">
+      <PhotoSlot ratio="3/2" label={photoLabel} caption={photoCaption} />
+    </div>
+    <ul class="report__list">
+      {rows.map((row) => (
+        <li class="report__row">
+          <span class="report__ring"><Glyph name="check" size={12} strokeWidth={3} /></span>
+          <span class="report__label">{row}</span>
+        </li>
+      ))}
+    </ul>
+    <div class="report__foot">
+      <Glyph name="envelope" size={18} strokeWidth={2} />
+      <span>{footer}</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .report {
+    /* A raised panel: the same white card on every band */
+    --tone-text: var(--color-text);
+    --tone-text-muted: var(--color-text-muted);
+    --tone-heading: var(--color-primary-strong);
+    --tone-border: var(--color-border);
+    --tone-rule: var(--color-accent);
+    width: 100%;
+    max-width: 26rem;
+    overflow: hidden;
+    background: var(--color-surface-raised);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .report__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .report__house {
+    color: var(--color-primary);
+  }
+
+  .report__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .report__visit {
+    margin-inline-start: auto;
+    flex: none;
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-muted);
+  }
+
+  .report__photo {
+    padding: 0 var(--space-3) var(--space-2);
+  }
+
+  .report__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .report__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: 0.625rem var(--space-3);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+
+  .report__ring {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-block-start: -0.0625rem;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-raised);
+    color: var(--color-success);
+  }
+
+  .report__label {
+    min-width: 0;
+    color: var(--color-text);
+  }
+
+  .report__foot {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.75rem var(--space-3);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-sunken);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 56rem) {
+    .report--tilt {
+      rotate: -2deg;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .report--animated {
+      animation: report-rise var(--duration-slow) var(--ease) both;
+    }
+
+    @keyframes report-rise {
+      from {
+        opacity: 0;
+        translate: 0 12px;
+      }
+      to {
+        opacity: 1;
+        translate: 0 0;
+      }
+    }
+  }
+</style>

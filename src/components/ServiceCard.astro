@@ -1,0 +1,197 @@
+---
+/**
+ * One service in the grid: index code, glyph, name, headline, the
+ * "Typical for" line and a details link. The whole card is clickable through
+ * the name link; the arrow row is decorative.
+ */
+import Glyph from './Glyph.astro';
+import type { Service } from '../data/types';
+import { url } from '../lib/url';
+
+interface Props {
+  service: Service;
+  headingLevel?: 3 | 4;
+  /** Larger card that also shows the promise; takes a full row of the grid. */
+  featured?: boolean;
+  class?: string;
+}
+
+const { service, headingLevel = 3, featured = false, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as 'h3' | 'h4';
+const href = url(`/services/${service.slug}/`);
+---
+
+<article class:list={['service-card', { 'service-card--featured': featured }, className]}>
+  <div class="service-card__top">
+    <span class="service-card__code tabular" aria-hidden="true">{service.code}</span>
+    <Glyph name={service.icon} size={32} class="service-card__glyph" />
+  </div>
+  <Heading class="service-card__name">
+    <a href={href} class="service-card__link">{service.name}</a>
+  </Heading>
+  <p class="service-card__headline">{service.headline}</p>
+  {featured && <p class="service-card__promise">{service.promise}</p>}
+  <p class="service-card__typical"><span class="service-card__typical-label">Typical for:</span> {service.typicalFor}</p>
+  <span class="service-card__cta" aria-hidden="true">
+    Details
+    <Glyph name="arrow-right" size={18} class="service-card__arrow" />
+  </span>
+</article>
+
+<style>
+  .service-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    transition: border-color var(--duration-fast) var(--ease);
+  }
+
+  .service-card:hover,
+  .service-card:focus-within {
+    border-color: var(--color-border-strong);
+  }
+
+  .service-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .service-card__code {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--color-accent-text);
+  }
+
+  .service-card__glyph {
+    color: var(--color-primary);
+  }
+
+  .service-card__name {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--color-primary-strong);
+  }
+
+  .service-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* stretch the name link over the whole card */
+  .service-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  /* Browsers without :has() keep the link's own ring */
+  @supports selector(:has(*)) {
+    .service-card__link:focus-visible {
+      outline: none;
+    }
+
+    .service-card:has(.service-card__link:focus-visible) {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+  }
+
+  .service-card__promise {
+    margin-block-start: var(--space-2);
+    max-width: 44ch;
+    color: var(--color-text-muted);
+  }
+
+  /* Featured card on a full-width row: name, headline and link on the left,
+     the promise and "Typical for" on the right, so a short card does not
+     leave a void. */
+  @media (min-width: 56rem) {
+    .service-card--featured {
+      display: grid;
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      grid-template-rows: auto auto auto 1fr;
+      column-gap: var(--space-6);
+      align-items: start;
+    }
+
+    .service-card--featured .service-card__top {
+      grid-column: 1 / -1;
+    }
+
+    .service-card--featured .service-card__name {
+      grid-column: 1;
+      font-size: var(--step-3);
+    }
+
+    .service-card--featured .service-card__headline {
+      grid-column: 1;
+      font-size: var(--step-1);
+      line-height: 1.35;
+    }
+
+    .service-card--featured .service-card__promise {
+      grid-column: 2;
+      grid-row: 2 / 4;
+      margin-block-start: 0.35em;
+    }
+
+    .service-card--featured .service-card__typical {
+      grid-column: 2;
+      grid-row: 4;
+    }
+
+    .service-card--featured .service-card__cta {
+      grid-column: 1;
+      grid-row: 4;
+      align-self: end;
+      margin-block-start: 0;
+    }
+  }
+
+  .service-card__headline {
+    color: var(--color-text);
+  }
+
+  .service-card__typical {
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  .service-card__typical-label {
+    font-weight: 600;
+    color: var(--color-accent-text);
+  }
+
+  .service-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-block-start: auto;
+    padding-block-start: var(--space-2);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .service-card__arrow {
+    transition: transform var(--duration) var(--ease);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .service-card:hover .service-card__arrow,
+    .service-card:focus-within .service-card__arrow {
+      transform: translateX(4px);
+    }
+  }
+</style>

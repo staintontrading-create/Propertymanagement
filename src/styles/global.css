@@ -1,0 +1,709 @@
+@import './fonts.css';
+
+/* ------------------------------------------------------------------------
+   Design tokens
+   ------------------------------------------------------------------------
+   Contrast ratios (WCAG 2.x, recomputed 2026-09-09):
+     --color-text          on surface 14.79  raised 16.11  sunken 13.18
+     --color-text-muted    on surface  5.70  raised  6.21  sunken  5.08
+     --color-primary       on surface 11.00  raised 11.99  sunken  9.81
+     --color-accent-text   on surface  5.71  raised  6.22  sunken  5.09
+     --color-accent        on surface  2.97  -> DECORATIVE ONLY, never text
+     --color-text-on-dark  on inverse 13.65  primary 11.00
+     --color-text-on-dark-muted on inverse 8.36  primary 6.74
+     --color-accent-on-dark on inverse 6.83  primary 5.51
+     --color-border-strong on raised 4.04  surface 3.71  sunken 3.30
+                           -> passes 1.4.11 everywhere; fields still sit on raised
+     --color-error         on surface  6.78  raised  7.39  sunken  6.04
+     --color-focus         on surface 11.00  sunken 9.81  inverse 1.24
+                           -> dark bands switch the ring to --color-accent-on-dark
+   ------------------------------------------------------------------------ */
+:root {
+  /* Colour */
+  --color-primary: #1e3a47;
+  --color-primary-strong: #142a35;
+  --color-accent: #b8862b; /* brass: rules, rings, bullets. NOT for text. */
+  --color-accent-text: #7f5a14; /* brass for text on light surfaces */
+  --color-accent-on-dark: #d9a84a; /* brass for text, rules and focus on dark bands */
+  --color-surface: #f7f5f0;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #ece8df;
+  --color-surface-inverse: #142a35;
+  --color-text: #1a2228;
+  --color-text-muted: #55636b;
+  --color-text-on-dark: #f7f5f0;
+  --color-text-on-dark-muted: #b9c4ca;
+  --color-border: #d6d0c4; /* decorative hairlines only */
+  --color-border-strong: #74808a; /* control boundaries: inputs, any 3:1 boundary */
+  --color-success: #2e6b4a;
+  --color-warning: #8f5310;
+  --color-error: #9b2f2f;
+  --color-focus: #1e3a47;
+  --color-focus-on-dark: #d9a84a; /* the visible 2px outer ring on dark bands */
+
+  /* Contextual tokens: components read these, tone wrappers override them */
+  --tone-bg: var(--color-surface);
+  --tone-text: var(--color-text);
+  --tone-text-muted: var(--color-text-muted);
+  --tone-heading: var(--color-primary-strong);
+  --tone-eyebrow: var(--color-accent-text);
+  --tone-rule: var(--color-accent);
+  --tone-border: var(--color-border);
+  --tone-link: var(--color-primary);
+  --tone-focus: var(--color-focus);
+  --tone-surface-raised: var(--color-surface-raised);
+  --tone-surface-sunken: var(--color-surface-sunken);
+
+  /* Type */
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --step--1: clamp(0.8125rem, 0.78rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+  --step-3: clamp(1.875rem, 1.5rem + 1.9vw, 2.75rem);
+  --step-4: clamp(2.5rem, 1.9rem + 3vw, 4.25rem);
+  --leading-tight: 1.05;
+  --leading-heading: 1.15;
+  --leading-body: 1.6;
+  --measure: 62ch;
+  --measure-heading: 22ch;
+  --tracking-eyebrow: 0.12em;
+
+  /* Space (8px base) */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
+  --space-6: 3rem;
+  --space-7: 3.5rem;
+  --space-8: 4rem;
+  --space-section: clamp(4rem, 3rem + 5vw, 8rem);
+  --space-section-tight: clamp(2.5rem, 2rem + 3vw, 5rem);
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+
+  /* Shape and elevation */
+  --radius: 4px;
+  --radius-pill: 999px;
+  --shadow-sticky: 0 1px 0 var(--color-border);
+  --shadow-lift: 0 12px 32px -16px rgba(20, 42, 53, 0.25);
+
+  /* Layout */
+  --container: 76rem;
+  --container-narrow: 46rem;
+  --header-height: 4rem;
+  /* Fixed mobile contact bar (ContactBar.astro): 3rem pill + 2 × space-1 padding + 1px border */
+  --contact-bar-height: calc(3rem + 2 * var(--space-1) + 1px);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration: 200ms;
+  --duration-slow: 400ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Patterns */
+  --pattern-hatch: repeating-linear-gradient(45deg, rgba(20, 42, 53, 0.06) 0 1px, transparent 1px 8px);
+  --pattern-plan-grid: linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  --pattern-plan-size: 48px 48px;
+  --photo-warm-overlay: rgba(184, 134, 43, 0.07);
+
+  color-scheme: light;
+}
+
+/* Tone wrappers: any section can switch palette by class */
+.tone-sunken {
+  --tone-bg: var(--color-surface-sunken);
+}
+.tone-raised {
+  --tone-bg: var(--color-surface-raised);
+}
+.tone-inverse,
+.tone-primary {
+  --tone-bg: var(--color-surface-inverse);
+  --tone-text: var(--color-text-on-dark);
+  --tone-text-muted: var(--color-text-on-dark-muted);
+  --tone-heading: var(--color-text-on-dark);
+  --tone-eyebrow: var(--color-accent-on-dark);
+  --tone-rule: var(--color-accent-on-dark);
+  --tone-border: rgba(247, 245, 240, 0.18);
+  --tone-surface-sunken: rgba(247, 245, 240, 0.12);
+  --tone-link: var(--color-text-on-dark);
+  --tone-focus: var(--color-focus-on-dark);
+}
+.tone-primary {
+  --tone-bg: var(--color-primary);
+}
+
+/* ------------------------------------------------------------------------
+   Reset
+   ------------------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-height) + var(--space-2));
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+svg {
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+summary {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------------
+   Base typography
+   ------------------------------------------------------------------------ */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--tone-heading);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: var(--step-4);
+  line-height: var(--leading-tight);
+  font-variation-settings: 'opsz' 144;
+}
+
+h2 {
+  font-size: var(--step-3);
+  line-height: var(--leading-heading);
+  font-variation-settings: 'opsz' 72;
+}
+
+h3 {
+  font-size: var(--step-2);
+  line-height: 1.2;
+  font-variation-settings: 'opsz' 36;
+}
+
+h4 {
+  font-size: var(--step-1);
+  line-height: 1.3;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+p,
+li,
+dd,
+dt {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--tone-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+strong {
+  font-weight: 600;
+}
+
+small,
+.small {
+  font-size: var(--step--1);
+}
+
+.lead {
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--tone-text-muted);
+  max-width: var(--measure);
+}
+
+.muted {
+  color: var(--tone-text-muted);
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--tone-eyebrow);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 36;
+}
+
+/* ------------------------------------------------------------------------
+   Focus and motion
+   ------------------------------------------------------------------------ */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tone-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-text-on-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Layout utilities
+   ------------------------------------------------------------------------ */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container--narrow {
+  max-width: calc(var(--container-narrow) + 2 * var(--gutter));
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: var(--space-4);
+}
+
+.flow > * + * {
+  margin-block-start: var(--flow-space, var(--space-2));
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.rule {
+  display: block;
+  width: 3rem;
+  height: 2px;
+  background: var(--tone-rule);
+  border: 0;
+  margin: 0 0 var(--space-2);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  z-index: 100;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-primary-strong);
+  color: var(--color-text-on-dark);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--color-focus);
+}
+
+/* Lists with a brass check or dash marker, used across the site */
+.list-plain {
+  list-style: none;
+}
+
+.hatch {
+  background-color: var(--color-surface-sunken);
+  background-image: var(--pattern-hatch);
+}
+
+/* Long-form text (privacy notice, about) */
+.prose {
+  max-width: var(--measure);
+}
+
+.prose > * + * {
+  margin-block-start: var(--space-2);
+}
+
+.prose h2 {
+  margin-block-start: var(--space-6);
+  font-size: var(--step-2);
+}
+
+.prose h3 {
+  margin-block-start: var(--space-4);
+  font-size: var(--step-1);
+}
+
+.prose ul,
+.prose ol {
+  padding-inline-start: 1.25em;
+}
+
+.prose li + li {
+  margin-block-start: var(--space-1);
+}
+
+/* Room for the fixed mobile contact bar (see ContactBar.astro) */
+@media (max-width: 55.99rem) {
+  /* The footer is the last element on the page, so the reserved space lives there */
+  body.has-contact-bar .site-footer {
+    padding-block-end: calc(var(--space-6) + var(--contact-bar-height) + var(--space-2) + env(safe-area-inset-bottom));
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Forms (QuoteRequestPanel, ContactForm)
+   ------------------------------------------------------------------------ */
+.form-panel {
+  padding: var(--space-4);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+}
+
+@media (max-width: 39.99rem) {
+  .form-panel {
+    padding: var(--space-3);
+  }
+}
+
+@media (min-width: 48rem) {
+  .form-panel {
+    padding: var(--space-6);
+  }
+}
+
+.form-grid {
+  display: grid;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+@media (min-width: 40rem) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid > .field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+  align-content: start;
+}
+
+.field__label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.field__optional {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.field__hint {
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
+}
+
+.input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.input:hover {
+  border-color: var(--color-primary);
+}
+
+.input:focus-visible {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.input:user-invalid {
+  border-color: var(--color-error);
+}
+
+textarea.input {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+select.input {
+  appearance: none;
+  padding-inline-end: 2.75rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a47' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1.25rem;
+}
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.fieldset > legend {
+  padding: 0;
+  margin-block-end: 0.5rem;
+  font-weight: 600;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.choice input,
+.checkbox input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--color-primary);
+  flex: none;
+}
+
+.checkbox {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin-block-start: 0.15rem;
+}
+
+.form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.form__status {
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface);
+  font-size: var(--step--1);
+}
+
+/* Kept in the accessibility tree while empty so the live region announces reliably */
+.form__status:not([data-state]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  margin-block-start: 0.375rem;
+  font-size: var(--step--1);
+  color: var(--color-error);
+}
+
+.field__error svg {
+  flex: none;
+  margin-block-start: 0.2rem;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.checkbox:has(input:user-invalid),
+.checkbox:has(input[aria-invalid='true']) {
+  outline: 2px solid var(--color-error);
+  outline-offset: 4px;
+  border-radius: var(--radius);
+}
+
+.form__required-note {
+  margin-block-end: var(--space-3);
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
+}
+
+.form__status[data-state='success'] {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.form__status[data-state='error'] {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.form__status a {
+  color: inherit;
+}
+
+.form[data-busy='true'] .button {
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------------------------
+   Page-level layout helpers
+   ------------------------------------------------------------------------ */
+/* Breadcrumb trail sitting above a page hero */
+.breadcrumb-row {
+  padding-block-start: var(--space-3);
+}
+
+/* Editorial split: heading block in the left five columns, content in the right six */
+.split {
+  display: grid;
+  gap: var(--space-5) var(--gutter);
+}
+
+@media (min-width: 56rem) {
+  .split {
+    grid-template-columns: 5fr 6fr;
+    align-items: start;
+  }
+
+  .split > :first-child {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}
