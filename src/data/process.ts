@@ -28,7 +28,7 @@ export const processSteps: ProcessStep[] = [
   },
   {
     title: 'Monthly summary and a standing invitation',
-    text: 'Once a month, a short summary of visits, spend against the scope, and anything coming up. Any question, any time, answered in writing.',
-    youReceive: 'a monthly summary and an answer to every question, in writing.',
+    text: 'For any ongoing service, once a month, a short summary of visits, spend against the scope, and anything coming up. Any question, any time, answered in writing.',
+    youReceive: 'a monthly summary for any ongoing service, and an answer to every question, in writing.',
   },
 ];

@@ -11,15 +11,17 @@ import { url } from '../lib/url';
 interface Props {
   service: Service;
   headingLevel?: 3 | 4;
+  /** Larger card that also shows the promise; takes a full row of the grid. */
+  featured?: boolean;
   class?: string;
 }
 
-const { service, headingLevel = 3, class: className } = Astro.props;
+const { service, headingLevel = 3, featured = false, class: className } = Astro.props;
 const Heading = `h${headingLevel}` as 'h3' | 'h4';
 const href = url(`/services/${service.slug}/`);
 ---
 
-<article class:list={['service-card', className]}>
+<article class:list={['service-card', { 'service-card--featured': featured }, className]}>
   <div class="service-card__top">
     <span class="service-card__code tabular" aria-hidden="true">{service.code}</span>
     <Glyph name={service.icon} size={32} class="service-card__glyph" />
@@ -28,6 +30,7 @@ const href = url(`/services/${service.slug}/`);
     <a href={href} class="service-card__link">{service.name}</a>
   </Heading>
   <p class="service-card__headline">{service.headline}</p>
+  {featured && <p class="service-card__promise">{service.promise}</p>}
   <p class="service-card__typical"><span class="service-card__typical-label">Typical for:</span> {service.typicalFor}</p>
   <span class="service-card__cta" aria-hidden="true">
     Details
@@ -93,13 +96,68 @@ const href = url(`/services/${service.slug}/`);
     border-radius: inherit;
   }
 
-  .service-card__link:focus-visible {
-    outline: none;
+  /* Browsers without :has() keep the link's own ring */
+  @supports selector(:has(*)) {
+    .service-card__link:focus-visible {
+      outline: none;
+    }
+
+    .service-card:has(.service-card__link:focus-visible) {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
   }
 
-  .service-card:has(.service-card__link:focus-visible) {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
+  .service-card__promise {
+    margin-block-start: var(--space-2);
+    max-width: 44ch;
+    color: var(--color-text-muted);
+  }
+
+  /* Featured card on a full-width row: name, headline and link on the left,
+     the promise and "Typical for" on the right, so a short card does not
+     leave a void. */
+  @media (min-width: 56rem) {
+    .service-card--featured {
+      display: grid;
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      grid-template-rows: auto auto auto 1fr;
+      column-gap: var(--space-6);
+      align-items: start;
+    }
+
+    .service-card--featured .service-card__top {
+      grid-column: 1 / -1;
+    }
+
+    .service-card--featured .service-card__name {
+      grid-column: 1;
+      font-size: var(--step-3);
+    }
+
+    .service-card--featured .service-card__headline {
+      grid-column: 1;
+      font-size: var(--step-1);
+      line-height: 1.35;
+    }
+
+    .service-card--featured .service-card__promise {
+      grid-column: 2;
+      grid-row: 2 / 4;
+      margin-block-start: 0.35em;
+    }
+
+    .service-card--featured .service-card__typical {
+      grid-column: 2;
+      grid-row: 4;
+    }
+
+    .service-card--featured .service-card__cta {
+      grid-column: 1;
+      grid-row: 4;
+      align-self: end;
+      margin-block-start: 0;
+    }
   }
 
   .service-card__headline {

@@ -11,6 +11,7 @@ import ContactStrip from '../components/ContactStrip.astro';
 import ContactBar from '../components/ContactBar.astro';
 import { site } from '../config/site';
 import { url, absoluteUrl } from '../lib/url';
+import { jsonLd as serialiseJsonLd } from '../lib/jsonld';
 
 interface Props {
   /** Page title without the company name. Omit on the home page. */
@@ -59,8 +60,14 @@ const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content="en_GB" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:locale" content={site.locale.replace('-', '_')} />
+    <meta property="og:image" content={absoluteUrl('/og-image.png', Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}: an example visit report with photographs and a checklist`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={absoluteUrl('/og-image.png', Astro.site)} />
+    {/* Mirrors --color-primary in src/styles/global.css; a meta tag cannot read a CSS custom property */}
     <meta name="theme-color" content="#1e3a47" />
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
@@ -71,7 +78,7 @@ const jsonLdList = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
       document.documentElement.classList.add('js');
     </script>
     {jsonLdList.map((data) => (
-      <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />
+      <script type="application/ld+json" is:inline set:html={serialiseJsonLd(data)} />
     ))}
   </head>
   <body class:list={[bodyClass, { 'has-contact-bar': showContactBar }]}>

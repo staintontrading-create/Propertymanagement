@@ -82,6 +82,11 @@ const hasMobileVisual = Astro.slots.has('visual-mobile');
     max-width: 26ch;
   }
 
+  /* Service headlines are full sentences: one step down keeps them to three or four lines */
+  .hero--service .hero__title {
+    font-size: var(--step-3);
+  }
+
   .hero__lead {
     margin-block-start: var(--space-3);
   }

@@ -15,7 +15,7 @@ const { items, headingLevel = 3, class: className } = Astro.props;
 const Heading = `h${headingLevel}` as 'h3' | 'h4';
 ---
 
-<ul class:list={['situations', className]}>
+<ul class:list={['situations', className]} role="list">
   {items.map((item) => (
     <li class="situations__item">
       <Heading class="situations__title">{item.title}</Heading>

@@ -8,7 +8,7 @@
  * renders large tappable rows for the contact page and contact strip.
  */
 import Glyph from './Glyph.astro';
-import { site, telUrl, whatsappUrl, mailtoUrl, hasWhatsApp } from '../config/site';
+import { site, telUrl, whatsappUrl, mailtoUrl, hasWhatsApp, hasPhone } from '../config/site';
 
 interface Props {
   compact?: boolean;
@@ -20,17 +20,17 @@ interface Props {
 const { compact = false, whatsappMessage, class: className } = Astro.props;
 const { contact } = site;
 const routes = [
-  contact.phoneDisplay && { key: 'phone', glyph: 'handset', label: 'Call', value: contact.phoneDisplay, href: telUrl() },
-  hasWhatsApp() && { key: 'whatsapp', glyph: 'whatsapp', label: 'WhatsApp', value: contact.phoneDisplay, href: whatsappUrl(whatsappMessage) },
+  hasPhone() && { key: 'phone', glyph: 'handset', label: 'Call', value: contact.phoneDisplay, href: telUrl() },
+  hasWhatsApp() && { key: 'whatsapp', glyph: 'whatsapp', label: 'WhatsApp', value: contact.whatsappDisplay || contact.phoneDisplay, href: whatsappUrl(whatsappMessage) },
   contact.email && { key: 'email', glyph: 'envelope', label: 'Email', value: contact.email, href: mailtoUrl() },
 ].filter(Boolean) as { key: string; glyph: 'handset' | 'whatsapp' | 'envelope'; label: string; value: string; href: string }[];
 ---
 
 <div class:list={['contact-details', { 'contact-details--compact': compact }, className]}>
-  <ul class="list-plain contact-details__routes">
+  <ul class="list-plain contact-details__routes" role="list">
     {routes.map((r) => (
       <li>
-        <a class="contact-details__route" href={r.href} rel={r.key === 'whatsapp' ? 'noopener' : undefined} target={r.key === 'whatsapp' ? '_blank' : undefined}>
+        <a class="contact-details__route" href={r.href}>
           <Glyph name={r.glyph} size={compact ? 18 : 24} class="contact-details__glyph" />
           <span class="contact-details__label">{r.label}</span>
           <span class="contact-details__value tabular">{r.value}</span>
@@ -75,9 +75,14 @@ const routes = [
     gap: var(--space-1);
   }
 
+  .contact-details {
+    --contact-label-w: 5.5rem;
+    --contact-glyph-w: 1.5rem;
+  }
+
   .contact-details__route {
     display: grid;
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: var(--contact-glyph-w) var(--contact-label-w) 1fr;
     align-items: center;
     gap: var(--space-2);
     min-height: 3.5rem;
@@ -109,7 +114,6 @@ const routes = [
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--tone-text-muted);
-    min-width: 5.5rem;
   }
 
   .contact-details__value {
@@ -128,7 +132,8 @@ const routes = [
 
   .contact-details__meta div {
     display: grid;
-    grid-template-columns: minmax(6.5rem, auto) 1fr;
+    /* dt spans the glyph column plus the label column so values line up with the routes */
+    grid-template-columns: calc(var(--contact-glyph-w) + var(--space-2) + var(--contact-label-w)) 1fr;
     gap: var(--space-2);
   }
 
@@ -145,18 +150,13 @@ const routes = [
     min-height: 2.75rem;
     padding: var(--space-1) var(--space-1);
     margin-inline: calc(-1 * var(--space-1));
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, auto) 1fr;
     gap: var(--space-1);
   }
 
   .contact-details--compact .contact-details__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
+    font-size: 0.7rem;
+    min-width: 4.5rem;
   }
 
   .contact-details--compact .contact-details__value {

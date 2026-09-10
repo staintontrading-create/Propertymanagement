@@ -93,7 +93,8 @@
   --container: 76rem;
   --container-narrow: 46rem;
   --header-height: 4rem;
-  --contact-bar-height: 3.5rem;
+  /* Fixed mobile contact bar (ContactBar.astro): 3rem pill + 2 × space-1 padding + 1px border */
+  --contact-bar-height: calc(3rem + 2 * var(--space-1) + 1px);
 
   /* Motion */
   --duration-fast: 150ms;
@@ -409,7 +410,7 @@ small,
 
 .skip-link:focus-visible {
   transform: none;
-  outline-color: var(--color-accent-on-dark);
+  outline-color: var(--color-focus);
 }
 
 /* Lists with a brass check or dash marker, used across the site */
@@ -452,8 +453,9 @@ small,
 
 /* Room for the fixed mobile contact bar (see ContactBar.astro) */
 @media (max-width: 55.99rem) {
-  .has-contact-bar main {
-    padding-block-end: calc(var(--contact-bar-height) + var(--space-2) + env(safe-area-inset-bottom));
+  /* The footer is the last element on the page, so the reserved space lives there */
+  body.has-contact-bar .site-footer {
+    padding-block-end: calc(var(--space-6) + var(--contact-bar-height) + var(--space-2) + env(safe-area-inset-bottom));
   }
 }
 
@@ -468,6 +470,12 @@ small,
   color: var(--color-text);
 }
 
+@media (max-width: 39.99rem) {
+  .form-panel {
+    padding: var(--space-3);
+  }
+}
+
 @media (min-width: 48rem) {
   .form-panel {
     padding: var(--space-6);
@@ -477,6 +485,7 @@ small,
 .form-grid {
   display: grid;
   gap: var(--space-3);
+  align-items: end;
 }
 
 @media (min-width: 40rem) {
@@ -611,8 +620,48 @@ select.input {
   font-size: var(--step--1);
 }
 
-.form__status:empty {
-  display: none;
+/* Kept in the accessibility tree while empty so the live region announces reliably */
+.form__status:not([data-state]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  margin-block-start: 0.375rem;
+  font-size: var(--step--1);
+  color: var(--color-error);
+}
+
+.field__error svg {
+  flex: none;
+  margin-block-start: 0.2rem;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.checkbox:has(input:user-invalid),
+.checkbox:has(input[aria-invalid='true']) {
+  outline: 2px solid var(--color-error);
+  outline-offset: 4px;
+  border-radius: var(--radius);
+}
+
+.form__required-note {
+  margin-block-end: var(--space-3);
+  font-size: var(--step--1);
+  color: var(--color-text-muted);
 }
 
 .form__status[data-state='success'] {
@@ -631,7 +680,6 @@ select.input {
 
 .form[data-busy='true'] .button {
   opacity: 0.7;
-  pointer-events: none;
 }
 
 /* ------------------------------------------------------------------------

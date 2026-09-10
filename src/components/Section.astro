@@ -44,7 +44,7 @@ const { tone = 'surface', padding = 'default', id, class: className, as: Tag = '
   }
 
   /* Adjacent surface bands would otherwise stack two section paddings */
-  .band--default + .band--default:not([class*='tone-']) {
+  .band--default:not([class*='tone-']) + .band--default:not([class*='tone-']) {
     padding-block-start: 0;
   }
 </style>

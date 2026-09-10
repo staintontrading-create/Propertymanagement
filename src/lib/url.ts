@@ -30,7 +30,7 @@ export function absoluteUrl(path: string, site: URL | undefined): string {
  */
 export function currentPath(pageUrl: URL): string {
   let p = pageUrl.pathname;
-  if (BASE && p.startsWith(BASE)) p = p.slice(BASE.length);
+  if (BASE && (p === BASE || p.startsWith(`${BASE}/`))) p = p.slice(BASE.length);
   if (!p.startsWith('/')) p = `/${p}`;
   if (!p.endsWith('/')) p = `${p}/`;
   return p;

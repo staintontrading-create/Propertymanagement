@@ -11,12 +11,16 @@ import Glyph from './Glyph.astro';
 interface Props {
   /** Caption under the stack; also seeds the accessible name. */
   label?: string;
+  /** Title printed on the front sheet. */
+  title?: string;
+  /** Right-aligned reference on the front sheet, e.g. "Visit 03". */
+  meta?: string;
   /** Lines in each paragraph block on the front sheet (1-5). */
   lines?: number;
   class?: string;
 }
 
-const { label = 'Condition report with photographs', lines = 3, class: className } = Astro.props;
+const { label = 'Condition report with photographs', lines = 3, title = 'Condition report', meta = 'Visit 03', class: className } = Astro.props;
 const count = Math.min(5, Math.max(1, Math.round(lines)));
 const ariaLabel = `${label}: a stack of three report pages; the front page shows a title, two photograph frames and short lines of text`;
 ---
@@ -27,8 +31,8 @@ const ariaLabel = `${label}: a stack of three report pages; the front page shows
     <span class="stack__sheet stack__sheet--mid"></span>
     <div class="stack__sheet stack__doc">
       <div class="stack__head">
-        <span class="stack__title">Condition report</span>
-        <span class="stack__meta">Visit 03</span>
+        <span class="stack__title">{title}</span>
+        <span class="stack__meta">{meta}</span>
       </div>
       <div class="stack__figure">
         <span class="stack__photo"><Glyph name="camera" size={20} /></span>

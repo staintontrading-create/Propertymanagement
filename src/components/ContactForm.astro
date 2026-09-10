@@ -34,6 +34,7 @@ const prefix = `${id}-`;
     data-subject="Message from the website"
   >
     <input type="hidden" name="form" value="contact" />
+    <p class="form__required-note">All fields are required unless marked optional.</p>
     <div class="form-grid">
       <div class="field">
         <label class="field__label" for={`${prefix}name`}><span class="field__label-text">Your name</span></label>
@@ -81,7 +82,7 @@ const prefix = `${id}-`;
 
       <div class="field field--full">
         <label class="checkbox">
-          <input type="checkbox" name="consent" value="yes" required />
+          <input id={`${prefix}consent`} type="checkbox" name="consent" value="yes" required />
           <span>I agree to my details being used to reply to this message, as described in the <a href={url('/privacy/')}>privacy notice</a>.</span>
         </label>
       </div>
@@ -96,7 +97,7 @@ const prefix = `${id}-`;
       <Button type="submit">Send message</Button>
       <p class="small muted">You will hear back within one working day, in writing.</p>
     </div>
-    <p class="form__status" data-form-status aria-live="polite" tabindex="-1"></p>
+    <p class="form__status" data-form-status role="status" aria-live="polite" tabindex="-1"></p>
   </form>
 </div>
 

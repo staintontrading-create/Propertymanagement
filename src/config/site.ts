@@ -30,6 +30,8 @@ export interface SiteConfig {
     phoneE164: string;
     /** Digits only, with country code, for wa.me links, e.g. "34600000000". PLACEHOLDER. */
     whatsappNumber: string;
+    /** Human-readable WhatsApp number when it differs from the phone number. Optional. */
+    whatsappDisplay?: string;
     /** PLACEHOLDER. */
     email: string;
     /** Opening hours shown on the contact page. PLACEHOLDER. */
@@ -58,7 +60,7 @@ export interface SiteConfig {
 export const site: SiteConfig = {
   name: 'Stainton Property Management', // PLACEHOLDER: derived from the GitHub account name
   legalName: 'Stainton Property Management', // PLACEHOLDER
-  tagline: 'Property care for owners who are not there',
+  tagline: 'Property care for owners who are away',
   description:
     'Property management for owners who are not always on site: maintenance, renovations, short-term rentals, handovers, inspections and holiday-home care.',
   locale: 'en-GB',
@@ -92,14 +94,19 @@ export function whatsappUrl(message?: string): string {
   return message ? `${base}?text=${encodeURIComponent(message)}` : base;
 }
 
+/** True when both the readable and the E.164 phone numbers are configured. */
+export function hasPhone(): boolean {
+  return Boolean(site.contact.phoneDisplay && site.contact.phoneE164);
+}
+
 export function telUrl(): string {
   return `tel:${site.contact.phoneE164}`;
 }
 
 export function mailtoUrl(subject?: string, body?: string): string {
-  const params = new URLSearchParams();
-  if (subject) params.set('subject', subject);
-  if (body) params.set('body', body);
-  const query = params.toString();
-  return `mailto:${site.contact.email}${query ? `?${query}` : ''}`;
+  // RFC 6068: percent-encode (URLSearchParams would write spaces as '+', which mail clients keep literally)
+  const parts: string[] = [];
+  if (subject) parts.push(`subject=${encodeURIComponent(subject)}`);
+  if (body) parts.push(`body=${encodeURIComponent(body)}`);
+  return `mailto:${site.contact.email}${parts.length ? `?${parts.join('&')}` : ''}`;
 }

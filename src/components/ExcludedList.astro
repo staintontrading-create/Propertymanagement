@@ -31,7 +31,7 @@ const rows = items.map((item) => {
 
 <div class:list={['excluded', className]}>
   {caption && <Caption class="excluded__caption">{caption}</Caption>}
-  <ul class="excluded__list">
+  <ul class="excluded__list" role="list">
     {rows.map((row) => (
       <li class="excluded__row">
         <span class="excluded__marker" aria-hidden="true"><Glyph name="dash" size={16} strokeWidth={2} /></span>
@@ -89,11 +89,14 @@ const rows = items.map((item) => {
   }
 
   .excluded__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
+    display: inline;
     font-weight: 600;
     text-decoration-color: var(--tone-rule);
     text-underline-offset: 0.2em;
+  }
+
+  .excluded__link :global(svg) {
+    vertical-align: middle;
+    margin-inline-start: 0.35em;
   }
 </style>

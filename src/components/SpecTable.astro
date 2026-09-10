@@ -9,7 +9,6 @@ import Glyph from './Glyph.astro';
 export interface SpecRow {
   key: string;
   detail: string;
-  link?: { label: string; href: string };
 }
 
 interface Props {
@@ -39,12 +38,6 @@ const Caption = `h${captionLevel}` as 'h3' | 'h4';
         </dt>
         <dd class="spec__detail">
           {row.detail}
-          {row.link && (
-            <>
-              {' '}
-              <a class="spec__link" href={row.link.href}>{row.link.label}</a>
-            </>
-          )}
         </dd>
       </div>
     ))}
@@ -102,10 +95,6 @@ const Caption = `h${captionLevel}` as 'h3' | 'h4';
   .spec__detail {
     color: var(--tone-text);
     max-width: var(--measure);
-  }
-
-  .spec__link {
-    white-space: nowrap;
   }
 
   @media (min-width: 40rem) {

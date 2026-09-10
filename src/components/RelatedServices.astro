@@ -25,6 +25,26 @@ const { slugs, headingLevel = 3, class: className } = Astro.props;
   .related {
     display: grid;
     gap: var(--space-3);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .related {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .related > :global(:nth-child(3):last-child) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .related {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    }
+
+    .related > :global(:nth-child(3):last-child) {
+      grid-column: auto;
+    }
   }
 </style>

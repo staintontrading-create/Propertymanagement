@@ -55,7 +55,7 @@ const count = words[shown] ?? String(shown);
       <span class="snag__pin" style={`left:${spots[i][0]}%;top:${spots[i][1]}%`}>{pin.n}</span>
     ))}
   </div>
-  <ol class="snag__legend">
+  <ol class="snag__legend" role="list">
     {pins.map((pin) => (
       <li class="snag__row">
         <span class="snag__n">{pin.n}</span>

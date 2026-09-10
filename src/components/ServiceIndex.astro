@@ -9,7 +9,7 @@ import { services, getService } from '../data/services';
 import { serviceGroups } from '../data/service-index';
 import { url } from '../lib/url';
 
-interface Props {
+export interface Props {
   heading?: string;
   grouped?: boolean;
   /** Heading level for the optional heading and the group labels. */
@@ -19,19 +19,21 @@ interface Props {
   compact?: boolean;
   /** Accessible name of the navigation landmark; must be unique on the page. */
   label?: string;
+  /** Render as a plain group instead of a navigation landmark (inside the mobile menu's own nav). */
+  as?: 'nav' | 'div';
 }
 
-const { heading, grouped = false, level = 2, class: className, compact = false, label = 'Service list' } = Astro.props;
+const { heading, grouped = false, level = 2, class: className, compact = false, label = 'Service list', as: Tag = 'nav' } = Astro.props;
 const Heading = `h${level}` as 'h2' | 'h3';
 const groups = grouped ? serviceGroups.map((g) => ({ label: g.label, items: g.slugs.map(getService) })) : [{ label: '', items: services }];
 ---
 
-<nav class:list={['service-index', { 'service-index--compact': compact }, className]} aria-label={label}>
+<Tag class:list={['service-index', { 'service-index--compact': compact }, className]} aria-label={Tag === 'nav' ? label : undefined}>
   {heading && <p class="eyebrow service-index__heading">{heading}</p>}
   {groups.map((g) => (
     <div class="service-index__group">
       {g.label && <Heading class="service-index__label">{g.label}</Heading>}
-      <ul class="list-plain">
+      <ul class="list-plain" role="list">
         {g.items.map((s) => (
           <li>
             <a class="service-index__row" href={url(`/services/${s.slug}/`)}>
@@ -45,7 +47,7 @@ const groups = grouped ? serviceGroups.map((g) => ({ label: g.label, items: g.sl
       </ul>
     </div>
   ))}
-</nav>
+</Tag>
 
 <style>
   .service-index__heading {
@@ -64,7 +66,6 @@ const groups = grouped ? serviceGroups.map((g) => ({ label: g.label, items: g.sl
     text-transform: uppercase;
     color: var(--tone-eyebrow);
     margin-block-end: var(--space-1);
-    letter-spacing: 0.12em;
   }
 
   .service-index__row {

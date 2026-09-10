@@ -10,7 +10,6 @@ import { site } from '../config/site';
 import { services } from '../data/services';
 import { url } from '../lib/url';
 
-const year = new Date().getFullYear();
 const social = [
   site.links.instagram && { label: 'Instagram', href: site.links.instagram },
   site.links.facebook && { label: 'Facebook', href: site.links.facebook },
@@ -25,14 +24,14 @@ const social = [
     <div class="site-footer__grid">
       <div class="site-footer__brand">
         <Wordmark size="large" />
-        <p class="site-footer__positioning">Property care for owners who are not there.</p>
+        <p class="site-footer__positioning">{site.tagline}.</p>
         {site.contact.hours && <p class="site-footer__meta">{site.contact.hours}</p>}
         {site.areasCovered && <p class="site-footer__meta">Areas covered: {site.areasCovered}</p>}
       </div>
 
       <nav class="site-footer__col" aria-labelledby="footer-services">
         <h2 id="footer-services" class="site-footer__heading">Services</h2>
-        <ul class="list-plain site-footer__list">
+        <ul class="list-plain site-footer__list" role="list">
           {services.map((s) => (
             <li>
               <a href={url(`/services/${s.slug}/`)}>
@@ -47,7 +46,7 @@ const social = [
       <div class="site-footer__col">
         <nav aria-labelledby="footer-company">
           <h2 id="footer-company" class="site-footer__heading">Company</h2>
-          <ul class="list-plain site-footer__list">
+          <ul class="list-plain site-footer__list" role="list">
             <li><a href={url('/about/')}>About</a></li>
             <li><a href={url('/contact/')}>Contact</a></li>
             <li><a href={url('/privacy/')}>Privacy</a></li>
@@ -64,7 +63,7 @@ const social = [
     </div>
 
     <div class="site-footer__legal">
-      <p>© {year} {site.legalName}</p>
+      <p>© {site.legalName}</p>
       <a href={url('/privacy/')}>Privacy notice</a>
     </div>
   </div>
@@ -117,8 +116,10 @@ const social = [
 
   .site-footer__list a {
     display: inline-flex;
+    align-items: baseline;
     gap: 0.5rem;
-    padding-block: 0.25rem;
+    min-height: 2.75rem;
+    padding-block: 0.375rem;
     color: var(--tone-text);
     text-decoration: none;
   }
@@ -149,6 +150,9 @@ const social = [
   }
 
   .site-footer__legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--tone-text);
   }
 

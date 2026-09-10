@@ -20,6 +20,13 @@ Everything company-specific lives in one file: `src/config/site.ts`. Every value
 
 Also complete the privacy notice (`src/pages/privacy.astro`): the lines marked "To confirm before launch" need the legal name, the form service, the hosting provider and the retention periods.
 
+Then regenerate the social preview image (`public/og-image.png`, shown when a page is shared on WhatsApp, LinkedIn or Facebook). It is rendered from the site's own wordmark, tagline and example visit report, so it goes stale when `name` or `tagline` changes:
+
+```sh
+npm i -D playwright && npx playwright install chromium   # once
+npm run og-image
+```
+
 ## Forms
 
 Both forms (contact page and "Request a written scope") are plain HTML forms enhanced with a small script (`src/scripts/enquiry-form.ts`):
@@ -93,4 +100,5 @@ src/
 public/fonts/           self-hosted Fraunces and Inter
 scripts/verify-dist.mjs post-build checks
 scripts/lint-copy.mjs   content rules lint
+scripts/og-image.mjs    regenerates public/og-image.png from the built site
 ```

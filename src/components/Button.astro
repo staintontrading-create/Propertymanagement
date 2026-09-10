@@ -139,8 +139,13 @@ const attrs = href ? { href, ...rest } : { type, ...rest };
     --button-bg: transparent;
     --button-fg: var(--tone-link);
     --button-border: transparent;
+    /* Inline so a wrapped label keeps its arrow after the last word; the block
+       padding keeps the hit area at 44px without changing the text layout. */
+    display: inline;
     min-height: 0;
-    padding: 0.25rem 0;
+    padding: 0.625rem 0;
+    line-height: 1.5;
+    text-align: left;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
@@ -154,6 +159,12 @@ const attrs = href ? { href, ...rest } : { type, ...rest };
 
   .button__arrow {
     transition: transform var(--duration) var(--ease);
+  }
+
+  .button--link .button__arrow {
+    display: inline-block;
+    vertical-align: middle;
+    margin-inline-start: 0.35em;
   }
 
   .button--link:hover .button__arrow {

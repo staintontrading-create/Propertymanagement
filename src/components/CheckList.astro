@@ -9,13 +9,15 @@ interface Props {
   items: string[];
   inline?: boolean;
   compact?: boolean;
+  /** Hairline-ruled rows, matching the arranged-separately list. */
+  ruled?: boolean;
   class?: string;
 }
 
-const { items, inline = false, compact = false, class: className } = Astro.props;
+const { items, inline = false, compact = false, ruled = false, class: className } = Astro.props;
 ---
 
-<ul class:list={['checklist', { 'checklist--inline': inline, 'checklist--compact': compact }, className]}>
+<ul class:list={['checklist', { 'checklist--inline': inline, 'checklist--compact': compact, 'checklist--ruled': ruled }, className]} role="list">
   {items.map((item) => (
     <li class="checklist__item">
       <span class="checklist__marker" aria-hidden="true">
@@ -61,6 +63,19 @@ const { items, inline = false, compact = false, class: className } = Astro.props
     width: 1.25rem;
     height: 1.25rem;
     margin-block-start: 0.15rem;
+  }
+
+  .checklist--ruled {
+    gap: 0;
+  }
+
+  .checklist--ruled .checklist__item {
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .checklist--ruled .checklist__item:last-child {
+    border-bottom: 1px solid var(--tone-border);
   }
 
   @media (min-width: 40rem) {

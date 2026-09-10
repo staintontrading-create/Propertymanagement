@@ -23,8 +23,8 @@ export const serviceGroups: ServiceGroup[] = [
     slugs: ['short-term-rentals', 'holiday-home-maintenance'],
   },
   {
-    key: 'checks',
-    label: 'For checks and handovers',
+    key: 'decisions',
+    label: 'For decisions',
     slugs: ['property-handovers', 'property-inspections'],
   },
 ];

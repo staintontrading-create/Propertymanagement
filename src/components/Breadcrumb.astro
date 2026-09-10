@@ -4,7 +4,8 @@
  * current page and is not a link.
  */
 import Glyph from './Glyph.astro';
-import { absoluteUrl } from '../lib/url';
+import { url, absoluteUrl } from '../lib/url';
+import { jsonLd as serialiseJsonLd } from '../lib/jsonld';
 
 export interface Crumb {
   label: string;
@@ -25,22 +26,22 @@ const jsonLd = {
   itemListElement: items.map((item, i) => ({
     '@type': 'ListItem',
     position: i + 1,
-    name: item.label,
+    name: item.label.replace(/^\d{2}\s/, ''),
     ...(item.path ? { item: absoluteUrl(item.path, Astro.site) } : {}),
   })),
 };
 ---
 
 <nav class:list={['breadcrumb', className]} aria-label="Breadcrumb">
-  <ol class="breadcrumb__list">
+  <ol class="breadcrumb__list" role="list">
     {items.map((item, i) => (
       <li class="breadcrumb__item">
-        {i > 0 && <Glyph name="arrow-right" size={14} class="breadcrumb__sep" />}
-        {item.path ? <a href={absoluteUrl(item.path, undefined)}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+        {item.path ? <a href={url(item.path)}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+        {i < items.length - 1 && <Glyph name="arrow-right" size={14} class="breadcrumb__sep" />}
       </li>
     ))}
   </ol>
-  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" is:inline set:html={serialiseJsonLd(jsonLd)} />
 </nav>
 
 <style>

@@ -40,6 +40,9 @@ const group = groupOf(slug);
 const path = `/services/${slug}/`;
 const includedRows = service.included.map((item) => ({ key: item.title, detail: item.detail }));
 const deliverableRows = service.deliverables.map((item) => ({ key: item.title, detail: item.detail }));
+/** The "What" line: the deliverables by name, as one sentence. */
+const deliverableNames = service.deliverables.map((item, i) => (i === 0 ? item.title : item.title.charAt(0).toLowerCase() + item.title.slice(1)));
+const whatYouReceive = `${deliverableNames.length > 1 ? `${deliverableNames.slice(0, -1).join(', ')} and ${deliverableNames.at(-1)}` : deliverableNames[0]}.`;
 const [reportingSlot, siteSlotA, siteSlotB] = service.photoSlots;
 /** PhotoSlot props for a content slot; `src` is a public/ path, prefixed with the base. */
 const slotProps = (slot: (typeof service.photoSlots)[number]) => ({
@@ -52,6 +55,11 @@ const slotProps = (slot: (typeof service.photoSlots)[number]) => ({
 });
 
 /** Which artefact sits in the reporting section, if any (the hero artefact is chosen in the template). */
+/** Pricing copy is one long string; split it into paragraphs of two or three sentences for the page. */
+const pricingSentences = service.pricing.match(/[^.!?]+[.!?]+(?:\s|$)/g)?.map((s) => s.trim()) ?? [service.pricing];
+const pricingParagraphs: string[] = [];
+for (let i = 0; i < pricingSentences.length; i += 2) pricingParagraphs.push(pricingSentences.slice(i, i + 2).join(' '));
+
 const hasReportingArtefact = ['property-management', 'renovations', 'property-handovers', 'property-inspections', 'holiday-home-maintenance'].includes(slug);
 
 const jsonLd = [
@@ -77,7 +85,7 @@ const jsonLd = [
 ];
 ---
 
-<BaseLayout title={service.name} description={service.metaDescription} path={path} ogType="article" jsonLd={jsonLd}>
+<BaseLayout title={service.name} description={service.metaDescription} path={path} jsonLd={jsonLd}>
   <div class="container breadcrumb-row">
     <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Services', path: '/services/' }, { label: `${service.code} ${service.name}` }]} />
   </div>
@@ -92,12 +100,12 @@ const jsonLd = [
     </Fragment>
     <Fragment slot="visual">
       {slug === 'property-management' && <ReportCard />}
-      {slug === 'handyman' && <QuoteSheet />}
+      {slug === 'handyman' && <QuoteSheet title="Quote sheet" separate={['Rewiring of hallway sockets: quoted separately by an electrician']} />}
       {slug === 'renovations' && <QuoteSheet variant="milestones" />}
       {slug === 'short-term-rentals' && <CycleDiagram />}
       {slug === 'property-handovers' && <SnagPlan />}
       {slug === 'property-inspections' && <CalendarStrip cadenceWeeks={8} label="Inspection every 8 weeks" />}
-      {slug === 'holiday-home-maintenance' && <KeyTag />}
+      {slug === 'holiday-home-maintenance' && <KeyTag class="hero-keytag" />}
     </Fragment>
   </Hero>
 
@@ -127,12 +135,16 @@ const jsonLd = [
       <div class="reporting__text">
         <dl class="reporting__meta">
           <div>
-            <dt>How often</dt>
-            <dd>{service.reporting.cadence}</dd>
+            <dt>What</dt>
+            <dd>{whatYouReceive}</dd>
           </div>
           <div>
             <dt>Format</dt>
             <dd>{service.reporting.format}</dd>
+          </div>
+          <div>
+            <dt>When</dt>
+            <dd>{service.reporting.cadence}</dd>
           </div>
           <div>
             <dt>Channel</dt>
@@ -145,8 +157,8 @@ const jsonLd = [
         {hasReportingArtefact && (
           <div class="reporting__artefact">
             {slug === 'property-management' && <HubDiagram />}
-            {slug === 'renovations' && <DocumentStack label="Milestone photographs and the running cost sheet" />}
-            {slug === 'property-handovers' && <DocumentStack label="Handover pack with photographs" />}
+            {slug === 'renovations' && <DocumentStack title="Running cost sheet" meta="Week 04" label="Milestone photographs and the running cost sheet" />}
+            {slug === 'property-handovers' && <DocumentStack title="Handover pack" meta="Day 1" label="Handover pack with photographs" />}
             {slug === 'property-inspections' && (
               <ReportCard
                 title="Condition report"
@@ -171,12 +183,17 @@ const jsonLd = [
     <SectionHeading eyebrow="On site" title="What we look at." align="split" lead="Two of the things you will see photographed in your reports." />
     <div class="site-photos">
       <PhotoSlot {...slotProps(siteSlotA)} />
-      <PhotoSlot {...slotProps(siteSlotB)} />
+      <PhotoSlot {...slotProps(siteSlotB)} ratio={siteSlotA.ratio} />
     </div>
   </Section>
 
   <Section tone="sunken" id="pricing">
-    <SectionHeading eyebrow="Pricing" title="How this service is priced." align="split" lead={service.pricing} />
+    <div class="split pricing">
+      <SectionHeading eyebrow="Pricing" title="How this service is priced." />
+      <div class="pricing__text flow">
+        {pricingParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    </div>
     <QuoteRequestPanel id="quote" preselect={slug} heading={`Request a written scope for ${service.name.toLowerCase()}`} />
   </Section>
 
@@ -196,6 +213,14 @@ const jsonLd = [
 <style>
   .service-hero__name {
     margin-block-start: var(--space-3);
+  }
+
+  :global(.hero-keytag.key-tag.key-tag--peek) {
+    max-width: calc(18rem + 2rem);
+  }
+
+  .pricing__text {
+    max-width: var(--measure);
   }
 
   .spec-pair {
@@ -270,6 +295,9 @@ const jsonLd = [
 
     .reporting__visual {
       justify-items: end;
+      /* The deliverables list is long; the artefact and photograph follow the reader down it */
+      position: sticky;
+      top: var(--space-4);
     }
   }
 </style>

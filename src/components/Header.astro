@@ -10,7 +10,7 @@ import Wordmark from './Wordmark.astro';
 import Button from './Button.astro';
 import Glyph from './Glyph.astro';
 import MobileMenu from './MobileMenu.astro';
-import { site, telUrl } from '../config/site';
+import { site, telUrl, hasPhone } from '../config/site';
 import { url, isActive } from '../lib/url';
 
 const nav = [
@@ -28,7 +28,7 @@ const nav = [
       <ul class="list-plain site-header__links">
         {nav.map((item) => (
           <li>
-            <a href={url(item.href)} aria-current={isActive(Astro.url, item.href) ? 'page' : undefined}>
+            <a href={url(item.href)} aria-current={isActive(Astro.url, item.href, true) ? 'page' : isActive(Astro.url, item.href) ? 'true' : undefined}>
               {item.label}
             </a>
           </li>
@@ -37,7 +37,7 @@ const nav = [
     </nav>
 
     <div class="site-header__actions">
-      {site.contact.phoneDisplay && (
+      {hasPhone() && (
         <a class="site-header__phone" href={telUrl()}>
           <Glyph name="handset" size={20} />
           <span class="site-header__phone-label tabular">{site.contact.phoneDisplay}</span>
@@ -116,7 +116,7 @@ const nav = [
   }
 
   .site-header__links a:hover,
-  .site-header__links a[aria-current='page'] {
+  .site-header__links a[aria-current] {
     text-decoration-line: underline;
   }
 

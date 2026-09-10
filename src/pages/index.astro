@@ -17,12 +17,13 @@ import { site, hasWhatsApp, telUrl } from '../config/site';
 import { processSteps } from '../data/process';
 import { getService } from '../data/services';
 import { url, absoluteUrl } from '../lib/url';
+import type { ServiceSlug } from '../data/types';
 
-const eyebrow = site.areasCovered ? `Property care for owners who are not there · ${site.areasCovered}` : 'Property care for owners who are not there';
+const eyebrow = site.areasCovered ? `${site.tagline} · ${site.areasCovered}` : site.tagline;
 
-const audienceLink = (slug: Parameters<typeof getService>[0]) => {
+const audienceLink = (slug: ServiceSlug) => {
   const s = getService(slug);
-  return { linkLabel: `See ${s.code} ${s.navLabel}`, href: url(`/services/${s.slug}/`) };
+  return { linkLabel: `See ${s.code} ${s.name}`, href: url(`/services/${s.slug}/`) };
 };
 
 const audience = [
@@ -43,6 +44,7 @@ const audience = [
   },
 ];
 
+const sameAs = Object.values(site.links).filter(Boolean);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -52,6 +54,8 @@ const jsonLd = {
   ...(site.contact.email ? { email: site.contact.email } : {}),
   ...(site.contact.phoneE164 ? { telephone: site.contact.phoneE164 } : {}),
   ...(site.areasCovered ? { areaServed: site.areasCovered } : {}),
+  logo: absoluteUrl('/apple-touch-icon.png', Astro.site),
+  ...(sameAs.length ? { sameAs } : {}),
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer service',
@@ -163,10 +167,16 @@ const jsonLd = {
 
   .reporting__photos {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
     width: 100%;
     max-width: 34rem;
+  }
+
+  @media (min-width: 40rem) {
+    .reporting__photos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .teaser {

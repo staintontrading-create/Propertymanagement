@@ -14,6 +14,7 @@
     "check": "astro check",
     "lint:copy": "node scripts/lint-copy.mjs",
     "verify": "node scripts/verify-dist.mjs",
+    "og-image": "node scripts/og-image.mjs",
     "test": "npm run lint:copy && npm run check && npm run build && npm run verify"
   },
   "dependencies": {

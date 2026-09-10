@@ -12,22 +12,22 @@ import { url } from '../lib/url';
 ---
 
 <dialog id="mobile-menu" class="mobile-menu" aria-label="Menu">
-  <div class="mobile-menu__panel">
+  <div class="mobile-menu__panel" tabindex="-1">
     <div class="container mobile-menu__bar">
       <Wordmark />
-      <button class="mobile-menu__close" type="button" data-menu-close>
+      <button class="mobile-menu__close" type="button" data-menu-close autofocus>
         <Glyph name="close" size={22} />
         <span>Close</span>
       </button>
     </div>
     <nav class="container mobile-menu__nav" aria-label="Mobile">
-      <ul class="list-plain mobile-menu__primary">
+      <ul class="list-plain mobile-menu__primary" role="list">
         <li><a href={url('/')}>Home</a></li>
         <li><a href={url('/services/')}>All services</a></li>
         <li><a href={url('/about/')}>About</a></li>
         <li><a href={url('/contact/')}>Contact</a></li>
       </ul>
-      <ServiceIndex grouped compact level={3} label="Services in menu" class="mobile-menu__services" />
+      <ServiceIndex as="div" grouped compact level={2} label="Services in menu" class="mobile-menu__services" />
       <div class="mobile-menu__contact">
         <p class="eyebrow">Reach a person</p>
         <ContactDetails compact />

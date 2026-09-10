@@ -100,11 +100,9 @@ for (const file of htmlFiles) {
 
 const pendingChecks = [];
 const existsCache = new Map();
-function existsSync(file) {
+function cachedExists(file) {
   if (!existsCache.has(file)) existsCache.set(file, exists(file));
-  const p = existsCache.get(file);
-  pendingChecks.push(p);
-  return p;
+  return existsCache.get(file);
 }
 
 const titles = new Map();
@@ -209,7 +207,7 @@ function checkInternal(rel, kind, href, route) {
     error(rel, `${kind} "${href}" is a page link without a trailing slash (trailingSlash is "always")`);
     return;
   }
-  return existsSync(targetFile).then((ok) => {
+  const check = cachedExists(targetFile).then((ok) => {
     if (!ok) {
       error(rel, `${kind} "${href}" does not resolve to a file in dist/`);
       return;
@@ -222,6 +220,8 @@ function checkInternal(rel, kind, href, route) {
       if (target && !target.ids.has(id)) error(rel, `${kind} "${href}" points at #${id} which does not exist on ${target.rel}`);
     }
   });
+  pendingChecks.push(check);
+  return check;
 }
 
 await Promise.all(pendingChecks);
