@@ -29,12 +29,13 @@ const {
 
 const NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const step = Math.max(1, Math.round(cadenceWeeks));
+const first = (((Math.round(startMonth) - 1) % 12) + 12) % 12;
 const weeks: number[] = [];
 for (let w = 1; w <= 52; w += step) weeks.push(w);
 
 /* Each tick sits at the midpoint of its week, expressed as a % of the month cell it lands in. */
 const cells = Array.from({ length: 12 }, (_, i) => {
-  const month = ((((startMonth - 1 + i) % 12) + 12) % 12) + 1;
+  const month = ((first + i) % 12) + 1;
   const ticks = weeks
     .map((w) => ((w - 0.5) / 52) * 12 - i)
     .filter((f) => f >= 0 && f < 1)
@@ -43,8 +44,10 @@ const cells = Array.from({ length: 12 }, (_, i) => {
 });
 
 const stays = cells.filter((c) => c.hl).map((c) => c.name);
+const range = first ? ` from ${NAMES[first]} to ${NAMES[(first + 11) % 12]}` : '';
+const every = step === 1 ? 'one every week' : `one every ${step} weeks`;
 const summary =
-  `${label}: ${weeks.length} visits marked on a twelve-month strip` +
+  `${label}: ${weeks.length} visits, ${every}, marked on a twelve-month strip${range}` +
   (stays.length ? `; you are there in ${stays.join(', ')}` : '') +
   '.';
 ---
@@ -53,7 +56,9 @@ const summary =
   <div class="cal__strip" aria-hidden="true">
     {cells.map((c) => (
       <span class:list={['cal__cell', { 'cal__cell--hl': c.hl }]}>
-        {c.ticks.map((t) => <i class="cal__tick" style={`left:${t}%`}></i>)}
+        <span class="cal__ticks">
+          {c.ticks.map((t) => <span class="cal__tick" style={`left:${t}%`}></span>)}
+        </span>
         <span class="cal__m">{c.initial}</span>
       </span>
     ))}
@@ -61,19 +66,17 @@ const summary =
   <div class="cal__foot" aria-hidden="true">
     <p class="cal__label"><Glyph name="calendar" size={18} /><span>{label}</span></p>
     <ul class="cal__legend">
-      <li><i class="cal__key cal__key--tick"></i>Visit</li>
-      {stays.length > 0 && <li><i class="cal__key cal__key--stay"></i>You are there</li>}
+      <li><span class="cal__key cal__key--tick"></span>Visit</li>
+      {stays.length > 0 && <li><span class="cal__key cal__key--stay"></span>You are there</li>}
     </ul>
   </div>
 </div>
 
 <style>
   .cal {
-    /* The strip is a light object (like the report card) so highlighted
-       months keep their contrast on sunken bands; on dark bands it goes
-       transparent and highlights with a translucent tint instead. */
+    /* A light object like the report card, so highlighted months keep their
+       contrast on sunken bands; transparent on dark bands. */
     --cal-bg: var(--color-surface-raised);
-    --cal-hl: var(--color-surface-sunken);
     container-type: inline-size;
     width: 100%;
     max-width: 40rem;
@@ -86,7 +89,6 @@ const summary =
   :global(.tone-inverse) .cal,
   :global(.tone-primary) .cal {
     --cal-bg: transparent;
-    --cal-hl: rgba(247, 245, 240, 0.12);
   }
 
   .cal__strip {
@@ -114,7 +116,7 @@ const summary =
   }
 
   .cal__cell--hl {
-    background: var(--cal-hl);
+    background: var(--tone-surface-sunken);
   }
 
   .cal__m {
@@ -123,11 +125,19 @@ const summary =
     letter-spacing: 0.02em;
   }
 
+  /* Inset track: a tick can never sit against a cell hairline */
+  .cal__ticks {
+    position: absolute;
+    inset: 0 4px auto 4px;
+    height: 1.25rem;
+  }
+
   .cal__tick {
     position: absolute;
     top: 0;
+    display: block;
     width: 2px;
-    height: 1.25rem;
+    height: 100%;
     margin-left: -1px;
     background: var(--tone-rule);
     border-radius: 0 0 1px 1px;
@@ -135,10 +145,9 @@ const summary =
 
   .cal__foot {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-3);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
     margin-block-start: var(--space-1);
     color: var(--tone-text-muted);
   }
@@ -152,7 +161,7 @@ const summary =
   .cal__legend {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1) var(--space-2);
+    gap: var(--space-1) var(--space-3);
     list-style: none;
   }
 
@@ -175,11 +184,11 @@ const summary =
   }
 
   .cal__key--stay {
-    width: 0.9em;
-    height: 0.9em;
-    border: 1px solid var(--tone-border);
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--color-border-strong);
     border-radius: 1px;
-    background: var(--cal-hl);
+    background: var(--tone-surface-sunken);
   }
 
   /* Narrow containers: two rows of six */

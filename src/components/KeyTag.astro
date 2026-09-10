@@ -31,10 +31,15 @@ const entries = logLine.split(' · ');
 >
   <div class="key-tag__body" aria-hidden="true">
     <svg class="key-tag__draw" viewBox="0 0 224 310" xmlns="http://www.w3.org/2000/svg" focusable="false">
-      <rect class="key-tag__face" x="0.75" y="30.75" width="222.5" height="278.5" rx="10"></rect>
+      <!-- The split ring is drawn first so the face covers it, and the hole is
+           cut out of the face (even-odd) so the ring shows through it. -->
+      <circle class="key-tag__ring" cx="112" cy="34" r="16"></circle>
+      <path
+        class="key-tag__face"
+        fill-rule="evenodd"
+        d="M10.75 30.75h202.5a10 10 0 0 1 10 10v258.5a10 10 0 0 1-10 10H10.75a10 10 0 0 1-10-10V40.75a10 10 0 0 1 10-10Z M112 41.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z"
+      ></path>
       <circle class="key-tag__eyelet" cx="112" cy="48" r="11"></circle>
-      <circle class="key-tag__hole" cx="112" cy="48" r="6.5"></circle>
-      <circle class="key-tag__ring" cx="112" cy="27" r="16"></circle>
     </svg>
     <div class="key-tag__text">
       <div class="key-tag__head">
@@ -42,8 +47,14 @@ const entries = logLine.split(' · ');
         <Glyph name="key" size={20} class="key-tag__glyph" />
       </div>
       <p class="key-tag__note">No address on tag</p>
+      <span class="key-tag__lines"></span>
       <p class="key-tag__log">
-        {entries.map((entry) => <span class="key-tag__entry">{entry}</span>)}
+        {entries.map((entry, i) => (
+          <>
+            {i > 0 && <span class="key-tag__sep">·</span>}
+            <span class="key-tag__entry">{entry}</span>
+          </>
+        ))}
       </p>
     </div>
   </div>
@@ -95,14 +106,8 @@ const entries = logLine.split(' · ');
 
   .key-tag__eyelet {
     fill: none;
-    stroke: var(--color-border);
-    stroke-width: 1.5;
-  }
-
-  .key-tag__hole {
-    fill: var(--tone-bg);
     stroke: var(--color-border-strong);
-    stroke-width: 1.5;
+    stroke-width: 1;
   }
 
   .key-tag__ring {
@@ -134,7 +139,7 @@ const entries = logLine.split(' · ');
     letter-spacing: -0.01em;
     font-variation-settings: 'opsz' 36;
     font-variant-numeric: tabular-nums;
-    color: var(--color-primary-strong);
+    color: var(--color-text);
   }
 
   .key-tag__label {
@@ -159,8 +164,16 @@ const entries = logLine.split(' · ');
     color: var(--color-text-muted);
   }
 
+  /* Write-on lines, as on a real tag, fill the space between the note and the log */
+  .key-tag__lines {
+    flex: 1 1 auto;
+    min-height: var(--space-5);
+    margin-block: var(--space-2) var(--space-1);
+    background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--space-3) - 1px), var(--color-border) calc(var(--space-3) - 1px) var(--space-3));
+  }
+
   .key-tag__log {
-    margin-block-start: auto;
+    margin-block-start: 0;
     padding-block-start: var(--space-1);
     border-top: 1px solid var(--color-border);
     font-size: var(--step--1);
@@ -168,10 +181,11 @@ const entries = logLine.split(' · ');
   }
 
   .key-tag__entry {
-    display: block;
+    display: inline;
   }
 
-  .key-tag__entry + .key-tag__entry {
-    margin-block-start: 0.15em;
+  .key-tag__sep {
+    margin-inline: 0.35em;
+    color: var(--color-text-muted);
   }
 </style>

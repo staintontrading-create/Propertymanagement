@@ -33,9 +33,9 @@ const iconFor = (party: string): GlyphName => {
   return 'clipboard';
 };
 
-const lower = parties.map((p) => p.toLowerCase());
+const lower = parties.map((p) => (p.length > 1 && p[1] === p[1].toUpperCase() && /[A-Z]/.test(p[1]) ? p : p.charAt(0).toLowerCase() + p.slice(1)));
 const list = lower.length > 1 ? `${lower.slice(0, -1).join(', ')} and ${lower.at(-1)}` : lower[0] ?? '';
-const label = `The owner talks to one named contact at ${site.name}, who coordinates ${list}.`;
+const label = `The owner talks to one named contact at ${site.name}, who coordinates the ${list}.`;
 
 /* One gently curved connector per party, from the centre node to each chip
    midpoint. The SVG is stretched to the gap cell, so y is a percentage. */
@@ -47,7 +47,8 @@ const fan = parties
   .join('');
 ---
 
-<div class:list={['hub', className]} role="img" aria-label={label}>
+<div class:list={['hub-wrap', className]}>
+<div class="hub" role="img" aria-label={label}>
   <div class="hub__chip hub__you">
     <Glyph name="user" size={20} />
     <span>You</span>
@@ -81,8 +82,14 @@ const fan = parties
     ))}
   </ul>
 </div>
+</div>
 
 <style>
+  .hub-wrap {
+    container-type: inline-size;
+    width: 100%;
+  }
+
   .hub {
     --hub-chip-bg: var(--color-surface-raised);
     --hub-chip-fg: var(--color-text);
@@ -109,7 +116,7 @@ const fan = parties
     align-items: center;
     gap: var(--space-1);
     max-width: 100%;
-    padding: 0.4rem 0.75rem 0.4rem 0.625rem;
+    padding: calc(var(--space-1) - 2px) var(--space-2) calc(var(--space-1) - 2px) calc(var(--space-2) - 0.25rem);
     border: 1px solid var(--tone-border);
     border-radius: var(--radius);
     background: var(--hub-chip-bg);
@@ -180,7 +187,7 @@ const fan = parties
     padding-block: 0.25rem;
   }
 
-  @media (max-width: 40rem) {
+  @container (max-width: 32rem) {
     .hub {
       grid-template-columns: minmax(0, 1fr);
       justify-items: center;
@@ -204,8 +211,10 @@ const fan = parties
       position: absolute;
       top: calc(-1 * var(--space-3));
       left: 50%;
+      width: 1.5px;
       height: var(--space-3);
-      border-left: 1.5px solid var(--tone-text);
+      background: currentColor;
+      transform: translateX(-50%);
       opacity: 0.4;
     }
 

@@ -104,7 +104,13 @@ const summary = `Turnover cycle: ${nodes.join(', ')}, then back to ${nodes[0]}.`
     color: var(--tone-text);
     font-family: var(--font-body);
     font-size: var(--step--1);
-    line-height: 1.3;
+    line-height: var(--leading-heading);
+  }
+
+  @media (max-width: 55.99rem) {
+    .cycle {
+      margin-inline: auto;
+    }
   }
 
   .cycle__ring {
@@ -118,6 +124,11 @@ const summary = `Turnover cycle: ${nodes.join(', ')}, then back to ${nodes[0]}.`
     stroke: var(--tone-rule);
   }
 
+  :global(.tone-inverse) .cycle__node,
+  :global(.tone-primary) .cycle__node {
+    fill: var(--color-surface-inverse);
+  }
+
   .cycle__centre {
     position: absolute;
     left: 50%;
@@ -125,7 +136,7 @@ const summary = `Turnover cycle: ${nodes.join(', ')}, then back to ${nodes[0]}.`
     transform: translate(-50%, -50%);
     display: grid;
     justify-items: center;
-    gap: 0.25rem;
+    gap: var(--space-1);
     color: var(--tone-text-muted);
     white-space: nowrap;
   }
@@ -141,16 +152,13 @@ const summary = `Turnover cycle: ${nodes.join(', ')}, then back to ${nodes[0]}.`
   .cycle__label {
     position: absolute;
     display: grid;
-    gap: 0.125rem;
     transform: translate(var(--tx), var(--ty));
     font-weight: 500;
     white-space: nowrap;
   }
 
   .cycle__index {
-    font-size: 0.85em;
     font-weight: 600;
-    letter-spacing: 0.06em;
     font-variant-numeric: tabular-nums;
     color: var(--tone-eyebrow);
   }

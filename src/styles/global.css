@@ -52,6 +52,7 @@
   --tone-link: var(--color-primary);
   --tone-focus: var(--color-focus);
   --tone-surface-raised: var(--color-surface-raised);
+  --tone-surface-sunken: var(--color-surface-sunken);
 
   /* Type */
   --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
@@ -126,6 +127,7 @@
   --tone-eyebrow: var(--color-accent-on-dark);
   --tone-rule: var(--color-accent-on-dark);
   --tone-border: rgba(247, 245, 240, 0.18);
+  --tone-surface-sunken: rgba(247, 245, 240, 0.12);
   --tone-link: var(--color-text-on-dark);
   --tone-focus: var(--color-focus-on-dark);
 }

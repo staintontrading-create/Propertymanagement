@@ -32,23 +32,24 @@ const {
 const spots = [
   [18.9, 24.1],
   [16.9, 75],
-  [60.8, 87],
+  [64, 90],
   [93.6, 40.7],
   [37.8, 75],
   [55.4, 27.8],
 ];
 const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
-const count = words[pins.length] ?? String(pins.length);
+const shown = Math.min(pins.length, spots.length);
+const count = words[shown] ?? String(shown);
 ---
 
-<div class:list={['snag', className]} role="img" aria-label={`Floor plan with ${count} numbered snag pins and a legend`}>
-  <div class="snag__plan" aria-hidden="true">
+<div class:list={['snag', className]}>
+  <div class="snag__plan" role="img" aria-label={`Floor plan of a small apartment with ${count} numbered snag pins, listed in the legend that follows`}>
     <svg viewBox="12 12 296 216" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-      <path stroke-width="2" d="M136 224H16V16h200v24h56v48m0 24v112H136"></path>
-      <path stroke-width="1.5" d="M112 16v120M16 104h56m24 0h16M112 136h16m24 0h120M160 136v24m0 24v40M16 152h72M88 152v40m0 24v8"></path>
-      <path stroke-width="1.5" stroke-dasharray="4 3" d="M272 56h32v96h-32"></path>
-      <path stroke-width="1" d="M112 224v-24a24 24 0 0 1 24 24M96 104V80a24 24 0 0 0-24 24M152 136v-24a24 24 0 0 0-24 24M160 184h24a24 24 0 0 0-24-24M88 192H64a24 24 0 0 0 24 24M272 112h-24a24 24 0 0 1 24-24"></path>
-      <path stroke-width="1" opacity=".5" d="M96 16v24H40v64M24 176h24v44H24zM208 152h56v60h-56z"></path>
+      <path stroke-width="2" vector-effect="non-scaling-stroke" d="M112 224H16V16h200v24h56v48m0 24v112H136"></path>
+      <path stroke-width="1.5" vector-effect="non-scaling-stroke" d="M112 16v120M16 104h56m24 0h16M112 136h16m24 0h120M160 136v24m0 24v40M16 152h72M88 152v40m0 24v8"></path>
+      <path stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke" d="M272 56h32v96h-32"></path>
+      <path stroke-width="1" vector-effect="non-scaling-stroke" d="M112 224v-24a24 24 0 0 1 24 24M96 104V80a24 24 0 0 0-24 24M152 136v-24a24 24 0 0 0-24 24M160 184h24a24 24 0 0 0-24-24M88 192H64a24 24 0 0 0 24 24M272 112h-24a24 24 0 0 1 24-24"></path>
+      <path stroke-width="1" opacity=".5" vector-effect="non-scaling-stroke" d="M96 16v24H40v64M24 176h24v44H24zM208 152h56v60h-56z"></path>
     </svg>
     {pins.slice(0, spots.length).map((pin, i) => (
       <span class="snag__pin" style={`left:${spots[i][0]}%;top:${spots[i][1]}%`}>{pin.n}</span>
@@ -108,6 +109,7 @@ const count = words[pins.length] ?? String(pins.length);
   .snag__legend {
     flex: 1 1 14rem;
     min-width: 0;
+    max-width: 28rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -119,7 +121,7 @@ const count = words[pins.length] ?? String(pins.length);
     display: grid;
     grid-template-columns: 2rem minmax(0, 1fr);
     align-items: baseline;
-    padding-block: 0.625rem;
+    padding-block: calc(var(--space-1) + 2px);
     border-top: 1px solid var(--tone-border);
   }
 
