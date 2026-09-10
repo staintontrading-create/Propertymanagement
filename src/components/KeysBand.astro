@@ -1,0 +1,69 @@
+---
+/**
+ * The dark "keys and access" band: how keys are stored and logged, how
+ * contractors are let in, and the one-named-contact diagram. Used on the
+ * home and about pages.
+ */
+import Section from './Section.astro';
+import SectionHeading from './SectionHeading.astro';
+import HubDiagram from './HubDiagram.astro';
+import Button from './Button.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id = 'keys', class: className } = Astro.props;
+---
+
+<Section tone="inverse" id={id} class={className}>
+  <div class="keys">
+    <div class="keys__copy">
+      <SectionHeading eyebrow="Keys and access" title="Who has your keys, and who has been inside." />
+      <div class="keys__text flow">
+        <p>
+          Your keys are kept in a locked cabinet under a coded tag. The tag carries the code and nothing else: no address, no name, nothing that links it to your property if it were ever lost.
+        </p>
+        <p>
+          Every time a key leaves the cabinet, the date, the name of the person taking it and the reason are written in a log, and again when it comes back. The log is yours to see whenever you ask.
+        </p>
+        <p>
+          Contractors are not given a key. They are met at the door, supervised while they work and let out, and the visit and its result are photographed for your property folder.
+        </p>
+      </div>
+      <Button href={url('/contact/')} class="keys__cta">Ask how it would work for your property</Button>
+    </div>
+    <div class="keys__visual">
+      <HubDiagram />
+    </div>
+  </div>
+</Section>
+
+<style>
+  .keys {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .keys__text {
+    max-width: 48ch;
+  }
+
+  :global(.keys__cta) {
+    margin-block-start: var(--space-5);
+  }
+
+  .keys__visual {
+    display: grid;
+    align-content: center;
+  }
+
+  @media (min-width: 56rem) {
+    .keys {
+      grid-template-columns: 6fr 6fr;
+      align-items: center;
+    }
+  }
+</style>

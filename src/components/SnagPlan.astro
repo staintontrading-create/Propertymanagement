@@ -1,0 +1,140 @@
+---
+/**
+ * Floor-plan artefact for the handovers page: a simplified apartment outline
+ * drawn in currentColor with numbered snag pins, and a ruled HTML legend.
+ * Pins are real HTML text positioned over the drawing; the legend is a real
+ * ordered list. Everything reads tone tokens, so it recolours on dark bands.
+ */
+interface Pin {
+  n: number;
+  label: string;
+}
+
+interface Props {
+  pins?: Pin[];
+  class?: string;
+}
+
+const {
+  pins = [
+    { n: 1, label: 'Kitchen worktop, scratch' },
+    { n: 2, label: 'Bathroom, silicone gap' },
+    { n: 3, label: 'Bedroom door, misaligned' },
+    { n: 4, label: 'Balcony door, seal' },
+    { n: 5, label: 'Hallway socket, loose' },
+    { n: 6, label: 'Living room, paint touch-up' },
+  ],
+  class: className,
+} = Astro.props;
+
+/* Pin anchors as percentages of the 296x216 plan, one per room in legend
+   order: kitchen, bathroom, bedroom, balcony, hallway, living room. */
+const spots = [
+  [18.9, 24.1],
+  [16.9, 75],
+  [60.8, 87],
+  [93.6, 40.7],
+  [37.8, 75],
+  [55.4, 27.8],
+];
+const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const count = words[pins.length] ?? String(pins.length);
+---
+
+<div class:list={['snag', className]} role="img" aria-label={`Floor plan with ${count} numbered snag pins and a legend`}>
+  <div class="snag__plan" aria-hidden="true">
+    <svg viewBox="12 12 296 216" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+      <path stroke-width="2" d="M136 224H16V16h200v24h56v48m0 24v112H136"></path>
+      <path stroke-width="1.5" d="M112 16v120M16 104h56m24 0h16M112 136h16m24 0h120M160 136v24m0 24v40M16 152h72M88 152v40m0 24v8"></path>
+      <path stroke-width="1.5" stroke-dasharray="4 3" d="M272 56h32v96h-32"></path>
+      <path stroke-width="1" d="M112 224v-24a24 24 0 0 1 24 24M96 104V80a24 24 0 0 0-24 24M152 136v-24a24 24 0 0 0-24 24M160 184h24a24 24 0 0 0-24-24M88 192H64a24 24 0 0 0 24 24M272 112h-24a24 24 0 0 1 24-24"></path>
+      <path stroke-width="1" opacity=".5" d="M96 16v24H40v64M24 176h24v44H24zM208 152h56v60h-56z"></path>
+    </svg>
+    {pins.slice(0, spots.length).map((pin, i) => (
+      <span class="snag__pin" style={`left:${spots[i][0]}%;top:${spots[i][1]}%`}>{pin.n}</span>
+    ))}
+  </div>
+  <ol class="snag__legend">
+    {pins.map((pin) => (
+      <li class="snag__row">
+        <span class="snag__n">{pin.n}</span>
+        <span class="snag__label">{pin.label}</span>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .snag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4);
+    width: 100%;
+    color: var(--tone-text);
+    font-family: var(--font-body);
+  }
+
+  .snag__plan {
+    position: relative;
+    flex: 1 1 16rem;
+    width: 100%;
+    max-width: 22rem;
+    aspect-ratio: 296 / 216;
+  }
+
+  .snag__plan svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .snag__pin {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid var(--tone-rule);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-raised);
+    color: var(--color-primary);
+    font-size: var(--step--1);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .snag__legend {
+    flex: 1 1 14rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .snag__row {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: baseline;
+    padding-block: 0.625rem;
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .snag__row:last-child {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .snag__n {
+    color: var(--tone-eyebrow);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .snag__label {
+    color: var(--tone-text);
+    overflow-wrap: anywhere;
+  }
+</style>

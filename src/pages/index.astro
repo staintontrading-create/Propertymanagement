@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Button from '../components/Button.astro';
+import CheckList from '../components/CheckList.astro';
+import ReportCard from '../components/ReportCard.astro';
+import ServiceIndex from '../components/ServiceIndex.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import AudienceBand from '../components/AudienceBand.astro';
+import ServicesGrid from '../components/ServicesGrid.astro';
+import Ledger from '../components/Ledger.astro';
+import PhotoSlot from '../components/PhotoSlot.astro';
+import KeysBand from '../components/KeysBand.astro';
+import QuoteRequestPanel from '../components/QuoteRequestPanel.astro';
+import { site, hasWhatsApp, telUrl } from '../config/site';
+import { processSteps } from '../data/process';
+import { getService } from '../data/services';
+import { url, absoluteUrl } from '../lib/url';
+
+const eyebrow = site.areasCovered ? `Property care for owners who are not there · ${site.areasCovered}` : 'Property care for owners who are not there';
+
+const audienceLink = (slug: Parameters<typeof getService>[0]) => {
+  const s = getService(slug);
+  return { linkLabel: `See ${s.code} ${s.name}`, href: url(`/services/${s.slug}/`) };
+};
+
+const audience = [
+  {
+    title: 'Overseas or relocated owner',
+    body: 'Your property is in one place and your life is in another. You need someone on the ground who reports back in writing.',
+    ...audienceLink('property-management'),
+  },
+  {
+    title: 'Second home or holiday home',
+    body: 'The house sits empty for weeks at a time. You want it checked, kept ready, and warm when you arrive.',
+    ...audienceLink('holiday-home-maintenance'),
+  },
+  {
+    title: 'Investor or landlord',
+    body: 'You own it for the return. You want the work priced before it starts and documented after.',
+    ...audienceLink('property-inspections'),
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: absoluteUrl('/', Astro.site),
+  description: site.description,
+  ...(site.contact.email ? { email: site.contact.email } : {}),
+  ...(site.contact.phoneE164 ? { telephone: site.contact.phoneE164 } : {}),
+  ...(site.areasCovered ? { areaServed: site.areasCovered } : {}),
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    ...(site.contact.phoneE164 ? { telephone: site.contact.phoneE164 } : {}),
+    ...(site.contact.email ? { email: site.contact.email } : {}),
+    availableLanguage: 'English',
+  },
+};
+---
+
+<BaseLayout path="/" jsonLd={jsonLd}>
+  <Hero variant="home" eyebrow={eyebrow} title="Your property, looked after as if you were standing in it." lead="One named contact. A written report with photographs after every visit. Nothing is spent on your home without a message from us and a yes from you.">
+    <Fragment slot="actions">
+      <Button href={url('/contact/')}>Talk to us</Button>
+      <Button variant="link" href="#how-we-work">See how we work</Button>
+    </Fragment>
+    <CheckList
+      slot="after"
+      compact
+      inline
+      items={['Reply within one working day', 'Photo report after every visit', 'No work started without your say-so', 'Keys held securely, every movement logged']}
+    />
+    <ReportCard slot="visual" animated tilt />
+    <ServiceIndex slot="visual-mobile" heading="The seven things we do" label="Services in the introduction" />
+  </Hero>
+
+  <Section tone="sunken" id="who-we-work-for">
+    <SectionHeading eyebrow="Who we work for" title="You are away. We are here." align="split" lead="Three kinds of owner ask us for help. Each has a service built around the question they ask most." />
+    <AudienceBand items={audience} />
+  </Section>
+
+  <Section id="services">
+    <SectionHeading eyebrow="What we do" title="Seven services, one contact." align="split" lead="Start with the one you need now. The same people, the same reports and the same key log run all seven, so adding another later changes nothing about how you are kept informed." />
+    <ServicesGrid headingLevel={3} />
+  </Section>
+
+  <Section tone="sunken" id="how-we-work">
+    <div class="split">
+      <SectionHeading eyebrow="How we work" title="Every step ends with something in your inbox." />
+      <Ledger steps={processSteps} />
+    </div>
+  </Section>
+
+  <Section id="reporting">
+    <SectionHeading eyebrow="Reporting" title="Everything in writing, with pictures." align="split" lead="You should never have to ring to find out what happened at your property. It arrives, dated and photographed, without being asked for." />
+    <div class="reporting">
+      <div class="reporting__text flow">
+        <p>
+          After every visit or job you receive a report, not a phone call you have to remember. It is a dated document with photographs, a checklist of what was looked at, a note of what was done, and a short list of anything that needs a decision from you.
+        </p>
+        <p>
+          It is sent the same day or the next working day, by email or in the message thread you prefer, and filed in a shared folder for your property that you can open at any time, from anywhere.
+        </p>
+        <p>
+          Once a month you receive a summary: the visits made, the money spent against your scope and your approval threshold, the invoices behind it, and what is coming up.
+        </p>
+      </div>
+      <div class="reporting__visual">
+        <ReportCard />
+        <div class="reporting__photos">
+          <PhotoSlot ratio="4/3" label="Photo: kitchen after handyman visit" />
+          <PhotoSlot ratio="4/3" label="Photo: pool area, pre-arrival check" />
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <KeysBand />
+
+  <Section tone="sunken" id="quote-section">
+    <SectionHeading eyebrow="Already know what you need?" title="Ask for a written scope." align="split" lead="Tell us about the property and the service you have in mind. You receive a scope with costs and your approval threshold in writing, and nothing starts until you have read it." />
+    <QuoteRequestPanel id="quote" heading="Tell us about the property" />
+  </Section>
+
+  <Section id="about-teaser">
+    <div class="teaser">
+      <div class="teaser__copy">
+        <span class="rule" aria-hidden="true"></span>
+        <p class="eyebrow">About</p>
+        <h2 class="teaser__heading">Run by the people who answer the phone.</h2>
+        <p class="teaser__text">
+          {site.name} is run by the people who answer the phone. When you call, message or write, you reach someone who knows your property, has read the last report on it, and can tell you what happens next.
+        </p>
+        <p>
+          {hasWhatsApp() ? 'Call, WhatsApp or write.' : 'Call or write.'} The number is <a href={telUrl()} class="tabular">{site.contact.phoneDisplay}</a>.
+        </p>
+        <Button variant="link" href={url('/about/')}>About {site.name}</Button>
+      </div>
+      <PhotoSlot ratio="4/5" label="Photo: the person who answers the phone" class="teaser__photo" />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .reporting {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .reporting__text {
+    max-width: var(--measure);
+  }
+
+  .reporting__visual {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  .reporting__photos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    width: 100%;
+    max-width: 34rem;
+  }
+
+  .teaser {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .teaser__copy .eyebrow {
+    margin-block-end: var(--space-2);
+  }
+
+  .teaser__heading {
+    max-width: 22ch;
+  }
+
+  .teaser__text {
+    margin-block-start: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.45;
+    max-width: 40ch;
+  }
+
+  .teaser__copy > p:not(.eyebrow):not(.teaser__text) {
+    margin-block: var(--space-3) var(--space-4);
+    max-width: var(--measure);
+  }
+
+  :global(.teaser__photo) {
+    max-width: 22rem;
+  }
+
+  @media (min-width: 56rem) {
+    .reporting {
+      grid-template-columns: 5fr 7fr;
+      align-items: start;
+    }
+
+    .reporting__visual {
+      grid-template-columns: minmax(0, 26rem);
+      justify-content: end;
+    }
+
+    .teaser {
+      grid-template-columns: 7fr 5fr;
+      align-items: center;
+    }
+
+    :global(.teaser__photo) {
+      justify-self: end;
+    }
+  }
+</style>
