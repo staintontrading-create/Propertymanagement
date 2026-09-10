@@ -69,6 +69,10 @@ const summary =
 
 <style>
   .cal {
+    /* The strip is a light object (like the report card) so highlighted
+       months keep their contrast on sunken bands; on dark bands it goes
+       transparent and highlights with a translucent tint instead. */
+    --cal-bg: var(--color-surface-raised);
     --cal-hl: var(--color-surface-sunken);
     container-type: inline-size;
     width: 100%;
@@ -81,12 +85,14 @@ const summary =
 
   :global(.tone-inverse) .cal,
   :global(.tone-primary) .cal {
+    --cal-bg: transparent;
     --cal-hl: rgba(247, 245, 240, 0.12);
   }
 
   .cal__strip {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
+    background: var(--cal-bg);
     border: 1px solid var(--tone-border);
     border-radius: var(--radius);
     overflow: hidden;

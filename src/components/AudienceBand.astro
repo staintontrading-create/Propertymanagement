@@ -59,8 +59,10 @@ const Heading = `h${headingLevel}` as 'h3' | 'h4';
     max-width: 38ch;
   }
 
-  :global(.audience__link) {
+  .audience__item :global(.audience__link) {
     margin-block-start: auto;
+    justify-content: flex-start;
+    text-align: left;
     align-self: flex-start;
   }
 

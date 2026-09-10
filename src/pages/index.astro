@@ -22,7 +22,7 @@ const eyebrow = site.areasCovered ? `Property care for owners who are not there 
 
 const audienceLink = (slug: Parameters<typeof getService>[0]) => {
   const s = getService(slug);
-  return { linkLabel: `See ${s.code} ${s.name}`, href: url(`/services/${s.slug}/`) };
+  return { linkLabel: `See ${s.code} ${s.navLabel}`, href: url(`/services/${s.slug}/`) };
 };
 
 const audience = [
@@ -195,7 +195,8 @@ const jsonLd = {
     max-width: var(--measure);
   }
 
-  :global(.teaser__photo) {
+  .teaser :global(.teaser__photo) {
+    width: 100%;
     max-width: 22rem;
   }
 
@@ -215,7 +216,7 @@ const jsonLd = {
       align-items: center;
     }
 
-    :global(.teaser__photo) {
+    .teaser :global(.teaser__photo) {
       justify-self: end;
     }
   }
