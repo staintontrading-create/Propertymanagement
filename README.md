@@ -41,7 +41,7 @@ npm run preview    # serve dist/ locally
 npm test           # type check, build and verify the output
 ```
 
-`npm run verify` (part of `npm test`) checks every generated page for broken internal links and anchors, one `<h1>`, unique titles and descriptions, alt text, heading order, leftover placeholders, and that the sitemap and robots.txt cover every page.
+`npm run verify` (part of `npm test`) checks every generated page for broken internal links and anchors, one `<h1>`, unique titles and descriptions, alt text, heading order, leftover placeholders, and that the sitemap and robots.txt cover every page. `npm run lint:copy` (also part of `npm test`) fails the build if the copy picks up marketing filler, invented figures, jurisdiction-specific terms or American spellings.
 
 ## Deploying
 
@@ -74,7 +74,10 @@ The site never shows prices, client numbers, ratings or testimonials by design: 
 
 ## Adding photographs
 
-Every reserved image area is a `PhotoSlot` showing a hatched frame with a label naming the intended shot ("Photo: meter readings on handover day"). To fill one, put the image in `public/images/` and pass `src`, `alt`, `width` and `height` to that slot; the frame stays and the hatch disappears. Service page slots are listed under `photoSlots` in `src/data/services.ts`.
+Every reserved image area is a `PhotoSlot` showing a hatched frame with a label naming the intended shot ("Photo: meter readings on handover day"). To fill one, put the image in `public/images/` and give the slot `src`, `alt`, `width` and `height`; the frame stays and the hatch disappears.
+
+- Service pages: add those four fields to the slot's entry under `photoSlots` in `src/data/services.ts`, with `src` as a path under `public/` such as `/images/handover-pack.jpg`.
+- Other pages: pass the same props to the `PhotoSlot` component in `src/pages/`, wrapping the path with the `url()` helper from `src/lib/url.ts` so it works under the GitHub Pages sub-path.
 
 ## Project structure
 
@@ -89,4 +92,5 @@ src/
   scripts/              the one client-side script (form enhancement)
 public/fonts/           self-hosted Fraunces and Inter
 scripts/verify-dist.mjs post-build checks
+scripts/lint-copy.mjs   content rules lint
 ```

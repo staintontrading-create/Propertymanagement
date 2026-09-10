@@ -105,8 +105,20 @@ export interface Service {
    * described. Slot 0 sits beside the reporting section, slots 1 and 2 form
    * the "On site" band.
    */
-  photoSlots: {
-    label: string;
-    ratio: '16/9' | '4/3' | '3/2';
-  }[];
+  photoSlots: PhotoSlotSpec[];
+}
+
+/**
+ * A reserved photograph on a service page. With only `label` and `ratio`
+ * the page shows a finished, hatched frame naming the intended shot. Add
+ * `src` (a path under public/, e.g. "/images/handover-pack.jpg"), `alt`,
+ * `width` and `height` once the photograph exists.
+ */
+export interface PhotoSlotSpec {
+  label: string;
+  ratio: '16/9' | '4/3' | '3/2';
+  src?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
 }

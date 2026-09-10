@@ -41,6 +41,15 @@ const path = `/services/${slug}/`;
 const includedRows = service.included.map((item) => ({ key: item.title, detail: item.detail }));
 const deliverableRows = service.deliverables.map((item) => ({ key: item.title, detail: item.detail }));
 const [reportingSlot, siteSlotA, siteSlotB] = service.photoSlots;
+/** PhotoSlot props for a content slot; `src` is a public/ path, prefixed with the base. */
+const slotProps = (slot: (typeof service.photoSlots)[number]) => ({
+  label: slot.label,
+  ratio: slot.ratio,
+  src: slot.src ? url(slot.src) : undefined,
+  alt: slot.alt,
+  width: slot.width,
+  height: slot.height,
+});
 
 /** Which artefact sits in the reporting section, if any (the hero artefact is chosen in the template). */
 const hasReportingArtefact = ['property-management', 'renovations', 'property-handovers', 'property-inspections', 'holiday-home-maintenance'].includes(slug);
@@ -153,7 +162,7 @@ const jsonLd = [
             )}
           </div>
         )}
-        <PhotoSlot ratio={reportingSlot.ratio} label={reportingSlot.label} />
+        <PhotoSlot {...slotProps(reportingSlot)} />
       </div>
     </div>
   </Section>
@@ -161,8 +170,8 @@ const jsonLd = [
   <Section id="on-site">
     <SectionHeading eyebrow="On site" title="What we look at." align="split" lead="Two of the things you will see photographed in your reports." />
     <div class="site-photos">
-      <PhotoSlot ratio={siteSlotA.ratio} label={siteSlotA.label} />
-      <PhotoSlot ratio={siteSlotB.ratio} label={siteSlotB.label} />
+      <PhotoSlot {...slotProps(siteSlotA)} />
+      <PhotoSlot {...slotProps(siteSlotB)} />
     </div>
   </Section>
 
