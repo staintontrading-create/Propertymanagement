@@ -1,0 +1,264 @@
+---
+/**
+ * QuoteSheet: an itemised written scope drawn as a document from the same
+ * office as ReportCard (raised white card, edge-to-edge hairline rules,
+ * sunken footer). It never shows prices, currency or totals; only
+ * descriptions and quantities.
+ *
+ *   variant="items"       lines with an empty brass ring (to be approved),
+ *                         a Qty column and a "Quoted separately" group.
+ *   variant="milestones"  numbered milestones; completed ones (first two by
+ *                         default, or `done`) carry a "Photos sent" tag.
+ */
+import Glyph from './Glyph.astro';
+
+interface Line {
+  label: string;
+  qty?: string;
+  /** milestones only: overrides the default (first two complete). */
+  done?: boolean;
+}
+
+interface Props {
+  title?: string;
+  /** Right-aligned document reference in the header row. */
+  reference?: string;
+  lines?: Line[];
+  separate?: string[];
+  footer?: string;
+  variant?: 'items' | 'milestones';
+  class?: string;
+}
+
+const props = Astro.props;
+const { variant = 'items', title = 'Written scope', reference = 'Ref 0418', class: className } = props;
+const milestones = variant === 'milestones';
+
+const lines: Line[] =
+  props.lines ??
+  (milestones
+    ? ['Strip-out', 'First fix', 'Tiling', 'Second fix', 'Snagging'].map((label) => ({ label }))
+    : [
+        { label: 'Replace tap cartridge, kitchen', qty: '1' },
+        { label: 'Re-seal shower tray', qty: '1' },
+        { label: 'Ease and adjust sticking door', qty: '2' },
+        { label: 'Replace blown bulbs, hallway', qty: '3' },
+      ]);
+const separate: string[] =
+  props.separate ?? (milestones ? [] : ['Rewiring of hallway sockets: quoted by a licensed electrician']);
+const footer = props.footer ?? (milestones ? 'Running cost sheet updated with each milestone' : 'Sent for your approval');
+
+const isDone = (line: Line, i: number) => line.done ?? i < 2;
+const doneCount = milestones ? lines.filter(isDone).length : 0;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const summary = milestones
+  ? `Example ${title.toLowerCase()}, ${reference}, with ${plural(lines.length, 'numbered milestone')}, photos sent for the first ${doneCount}, and a running cost sheet footer`
+  : `Example ${title.toLowerCase()}, ${reference}, with ${plural(lines.length, 'item')} awaiting approval, ${plural(separate.length, 'item')} quoted separately and a sent-for-approval footer`;
+---
+
+<div class:list={['quote', `quote--${variant}`, className]} role="img" aria-label={summary}>
+  <div class="quote__sheet" aria-hidden="true">
+    <div class="quote__head">
+      <Glyph name="clipboard" size={24} class="quote__icon" />
+      <span class="quote__title">{title}</span>
+      <span class="quote__ref">{reference}</span>
+    </div>
+
+    {!milestones && (
+      <div class="quote__cols">
+        <span>Item</span>
+        <span>Qty</span>
+      </div>
+    )}
+
+    <ul class="quote__lines">
+      {lines.map((line, i) => (
+        <li class="quote__line">
+          {milestones ? (
+            <span class="quote__num">{String(i + 1).padStart(2, '0')}</span>
+          ) : (
+            <span class="quote__ring"></span>
+          )}
+          <span class="quote__label">{line.label}</span>
+          {milestones ? (
+            isDone(line, i) && (
+              <span class="quote__tag">Photos sent</span>
+            )
+          ) : (
+            <span class="quote__qty">{line.qty ?? ''}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+
+    {separate.length > 0 && (
+      <div class="quote__group">
+        <span class="quote__eyebrow">Quoted separately</span>
+        <ul class="quote__lines">
+          {separate.map((item) => (
+            <li class="quote__line">
+              <Glyph name="dash" size={20} class="quote__dash" />
+              <span class="quote__label">{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="quote__foot">{footer}</div>
+  </div>
+</div>
+
+<style>
+  .quote {
+    /* A raised panel: the same white card on every band */
+    --tone-text: var(--color-text);
+    --tone-text-muted: var(--color-text-muted);
+    --tone-heading: var(--color-primary-strong);
+    --tone-border: var(--color-border);
+    --tone-rule: var(--color-accent);
+    width: 100%;
+    max-width: 26rem;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    text-align: left;
+  }
+
+  .quote__sheet {
+    overflow: hidden;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  .quote__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .quote__icon {
+    color: var(--color-primary);
+  }
+
+  .quote__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: var(--step-0);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+
+  .quote__ref,
+  .quote__qty,
+  .quote__num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .quote__ref {
+    margin-inline-start: auto;
+    flex: none;
+    color: var(--color-text-muted);
+  }
+
+  .quote__cols,
+  .quote__eyebrow {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--space-1) var(--space-3) 0.375rem;
+    font-size: 1em;
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+  }
+
+  .quote__cols {
+    color: var(--color-text-muted);
+  }
+
+  .quote__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .quote__line {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: var(--space-2);
+    padding: 0.625rem var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .quote__ring {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-raised);
+  }
+
+  .quote__label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--color-text);
+  }
+
+  .quote__qty {
+    min-width: 2ch;
+    text-align: right;
+    color: var(--color-text-muted);
+  }
+
+  .quote__group {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .quote__eyebrow {
+    color: var(--color-accent-text);
+  }
+
+  .quote__dash {
+    color: var(--color-warning);
+    justify-self: center;
+  }
+
+  .quote__foot {
+    padding: 0.75rem var(--space-3);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+  }
+
+  /* Milestones */
+  .quote--milestones .quote__line {
+    grid-template-columns: 2ch minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: var(--space-1); /* index-code spacing: code, en-space, name */
+  }
+
+  .quote--milestones .quote__label {
+    margin-inline-end: var(--space-1);
+  }
+
+  .quote__num {
+    font-weight: 600;
+    color: var(--color-accent-text);
+  }
+
+  .quote__tag {
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius);
+    color: var(--color-success);
+    font-size: 1em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+</style>

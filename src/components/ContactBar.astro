@@ -1,0 +1,98 @@
+---
+/**
+ * Fixed bottom bar on small screens with the three ways to reach a person.
+ * Not rendered on the contact page (the layout decides). Slides away while a
+ * form field has focus so it never covers a submit button.
+ */
+import Glyph from './Glyph.astro';
+import { site, telUrl, whatsappUrl, hasWhatsApp } from '../config/site';
+import { url } from '../lib/url';
+
+const actions = [
+  site.contact.phoneDisplay && { glyph: 'handset', label: 'Call', href: telUrl() },
+  hasWhatsApp() && { glyph: 'whatsapp', label: 'WhatsApp', href: whatsappUrl(), external: true },
+  { glyph: 'message', label: 'Message', href: url('/contact/') },
+].filter(Boolean) as { glyph: 'handset' | 'whatsapp' | 'message'; label: string; href: string; external?: boolean }[];
+---
+
+<nav class="contact-bar" id="contact-bar" data-contact-bar aria-label="Quick contact">
+  <ul class="list-plain contact-bar__list">
+    {actions.map((a) => (
+      <li>
+        <a class="contact-bar__pill" href={a.href} target={a.external ? '_blank' : undefined} rel={a.external ? 'noopener' : undefined}>
+          <Glyph name={a.glyph} size={20} />
+          <span>{a.label}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<script>
+  // Fallback for browsers without :has(): hide the bar while typing in a form.
+  const bar = document.querySelector<HTMLElement>('[data-contact-bar]');
+  if (bar && !CSS.supports('selector(:has(*))')) {
+    const isField = (el: EventTarget | null) => el instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName);
+    document.addEventListener('focusin', (e) => {
+      if (isField(e.target)) bar.classList.add('is-hidden');
+    });
+    document.addEventListener('focusout', (e) => {
+      if (isField(e.target)) bar.classList.remove('is-hidden');
+    });
+  }
+</script>
+
+<style>
+  .contact-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: var(--space-1) var(--gutter) calc(var(--space-1) + env(safe-area-inset-bottom));
+    background: var(--color-surface-raised);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lift);
+    transition: transform var(--duration) var(--ease);
+  }
+
+  .contact-bar.is-hidden,
+  :global(body:has(:is(input, textarea, select):focus)) .contact-bar {
+    transform: translateY(110%);
+  }
+
+  .contact-bar__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: var(--space-1);
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+
+  .contact-bar__pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    color: var(--color-primary);
+    font-size: var(--step--1);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .contact-bar__pill:hover {
+    background: var(--color-surface-sunken);
+    border-color: var(--color-primary-strong);
+  }
+
+  @media (min-width: 56rem) {
+    .contact-bar {
+      display: none;
+    }
+  }
+</style>

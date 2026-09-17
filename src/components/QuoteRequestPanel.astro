@@ -1,0 +1,151 @@
+---
+/**
+ * "Ask for a written scope": the secondary conversion. A white panel with a
+ * short form: service, property type, location, how often the owner is
+ * there, contact details and a message. Posts to the configured endpoint or
+ * falls back to email (see src/scripts/enquiry-form.ts).
+ */
+import Button from './Button.astro';
+import { site, mailtoUrl } from '../config/site';
+import { services } from '../data/services';
+import { url } from '../lib/url';
+import type { ServiceSlug } from '../data/types';
+
+interface Props {
+  preselect?: ServiceSlug;
+  id?: string;
+  heading?: string;
+  headingLevel?: 2 | 3;
+  class?: string;
+}
+
+const { preselect, id = 'quote', heading = 'Request a written scope', headingLevel = 3, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as 'h2' | 'h3';
+const endpoint = site.formEndpoint;
+const action = endpoint || mailtoUrl('Quote request from the website');
+const prefix = `${id}-`;
+---
+
+<div class:list={['form-panel', 'quote-panel', className]} id={id}>
+  <Heading class="quote-panel__heading">{heading}</Heading>
+  <p class="quote-panel__lead">
+    Tell us what the property is and what you need. You receive a written scope with costs, and your approval threshold, before anything starts.
+  </p>
+  <form
+    class="form quote-panel__form"
+    method="post"
+    action={action}
+    enctype={endpoint ? undefined : 'text/plain'}
+    data-enquiry-form
+    data-endpoint={endpoint}
+    data-mailto={site.contact.email}
+    data-subject="Quote request from the website"
+  >
+    <input type="hidden" name="form" value="quote" />
+    <input type="hidden" name="page" value={url(Astro.url.pathname.replace(import.meta.env.BASE_URL, '/'))} />
+    <p class="form__required-note">All fields are required unless marked optional.</p>
+    <div class="form-grid">
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}service`}><span class="field__label-text">Service</span></label>
+        <select class="input" id={`${prefix}service`} name="service" required>
+          <option value="" selected={!preselect}>Choose a service</option>
+          {services.map((s) => (
+            <option value={s.slug} selected={preselect === s.slug}>{s.code} {s.name}</option>
+          ))}
+          <option value="not-sure">Not sure yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}property-type`}><span class="field__label-text">Property type</span></label>
+        <select class="input" id={`${prefix}property-type`} name="property_type" required>
+          <option value="">Choose one</option>
+          <option value="apartment">Apartment or flat</option>
+          <option value="house">House or villa</option>
+          <option value="townhouse">Townhouse</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}location`}><span class="field__label-text">Property location</span></label>
+        <input class="input" id={`${prefix}location`} name="property_location" type="text" autocomplete="off" required aria-describedby={`${prefix}location-hint`} />
+        <p class="field__hint" id={`${prefix}location-hint`}>Town or area is enough.</p>
+      </div>
+
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}presence`}><span class="field__label-text">How often are you at the property?</span></label>
+        <select class="input" id={`${prefix}presence`} name="presence" required>
+          <option value="">Choose one</option>
+          <option value="rarely">Rarely, or never</option>
+          <option value="few-times-a-year">A few times a year</option>
+          <option value="most-months">Most months</option>
+          <option value="living-there">I live there</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}name`}><span class="field__label-text">Your name</span></label>
+        <input class="input" id={`${prefix}name`} name="name" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for={`${prefix}email`}><span class="field__label-text">Email</span></label>
+        <input class="input" id={`${prefix}email`} name="email" type="email" autocomplete="email" required />
+      </div>
+
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}phone`}><span class="field__label-text">Phone or WhatsApp</span> <span class="field__optional">(optional)</span></label>
+        <input class="input" id={`${prefix}phone`} name="phone" type="tel" autocomplete="tel" />
+      </div>
+
+      <div class="field field--full">
+        <label class="field__label" for={`${prefix}message`}><span class="field__label-text">What do you need?</span></label>
+        <textarea class="input" id={`${prefix}message`} name="message" rows="5" required aria-describedby={`${prefix}message-hint`}></textarea>
+        <p class="field__hint" id={`${prefix}message-hint`}>A few lines is enough. If it helps, say what worries you most about the property.</p>
+      </div>
+
+      <div class="field field--full">
+        <label class="checkbox">
+          <input id={`${prefix}consent`} type="checkbox" name="consent" value="yes" required />
+          <span>I agree to my details being used to reply to this request, as described in the <a href={url('/privacy/')}>privacy notice</a>.</span>
+        </label>
+      </div>
+
+      <div class="visually-hidden" aria-hidden="true">
+        <label for={`${prefix}website`}>Leave this field empty</label>
+        <input id={`${prefix}website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <Button type="submit">Request a quote</Button>
+      <p class="small muted">No obligation. Nothing is spent without your written approval.</p>
+    </div>
+    <p class="form__status" data-form-status role="status" aria-live="polite" tabindex="-1"></p>
+  </form>
+</div>
+
+<script>
+  import '../scripts/enquiry-form';
+</script>
+
+<style>
+  .quote-panel__heading {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    color: var(--color-primary-strong);
+  }
+
+  .quote-panel__lead {
+    margin-block-start: var(--space-2);
+    max-width: var(--measure);
+    color: var(--color-text-muted);
+  }
+
+  .quote-panel__form {
+    display: grid;
+    gap: var(--space-4);
+    margin-block-start: var(--space-4);
+  }
+</style>

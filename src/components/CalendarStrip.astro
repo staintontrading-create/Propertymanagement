@@ -1,0 +1,201 @@
+---
+/**
+ * Twelve-month strip showing an inspection cadence. Brass ticks hang from the
+ * top rail at each visit across a 52-week year; highlighted months (owner
+ * stays) get a sunken fill. Colour comes from the --tone-* tokens so it
+ * recolours on dark bands with no extra props.
+ */
+import Glyph from './Glyph.astro';
+
+interface Props {
+  /** Weeks between visits. Ticks fall on weeks 1, 1+n, 1+2n ... up to 52. */
+  cadenceWeeks?: number;
+  /** Caption under the strip; also seeds the accessible name. */
+  label?: string;
+  /** 1-based calendar months to emphasise, e.g. [7, 8] for July and August. */
+  highlightMonths?: number[];
+  /** 1-based calendar month the strip starts on. */
+  startMonth?: number;
+  class?: string;
+}
+
+const {
+  cadenceWeeks = 8,
+  label = 'Inspection every 8 weeks',
+  highlightMonths = [],
+  startMonth = 1,
+  class: className,
+} = Astro.props;
+
+const NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const step = Math.max(1, Math.round(cadenceWeeks));
+const first = (((Math.round(startMonth) - 1) % 12) + 12) % 12;
+const weeks: number[] = [];
+for (let w = 1; w <= 52; w += step) weeks.push(w);
+
+/* Each tick sits at the midpoint of its week, expressed as a % of the month cell it lands in. */
+const cells = Array.from({ length: 12 }, (_, i) => {
+  const month = ((first + i) % 12) + 1;
+  const ticks = weeks
+    .map((w) => ((w - 0.5) / 52) * 12 - i)
+    .filter((f) => f >= 0 && f < 1)
+    .map((f) => Math.round(f * 1000) / 10);
+  return { initial: NAMES[month - 1][0], name: NAMES[month - 1], ticks, hl: highlightMonths.includes(month) };
+});
+
+const stays = cells.filter((c) => c.hl).map((c) => c.name);
+const range = first ? ` from ${NAMES[first]} to ${NAMES[(first + 11) % 12]}` : '';
+const every = step === 1 ? 'one every week' : `one every ${step} weeks`;
+const summary =
+  `${label}: ${weeks.length} visits, ${every}, marked on a twelve-month strip${range}` +
+  (stays.length ? `; you are there in ${stays.join(', ')}` : '') +
+  '.';
+---
+
+<div class:list={['cal', className]} role="img" aria-label={summary}>
+  <div class="cal__strip" aria-hidden="true">
+    {cells.map((c) => (
+      <span class:list={['cal__cell', { 'cal__cell--hl': c.hl }]}>
+        <span class="cal__ticks">
+          {c.ticks.map((t) => <span class="cal__tick" style={`left:${t}%`}></span>)}
+        </span>
+        <span class="cal__m">{c.initial}</span>
+      </span>
+    ))}
+  </div>
+  <div class="cal__foot" aria-hidden="true">
+    <p class="cal__label"><Glyph name="calendar" size={18} /><span>{label}</span></p>
+    <ul class="cal__legend">
+      <li><span class="cal__key cal__key--tick"></span>Visit</li>
+      {stays.length > 0 && <li><span class="cal__key cal__key--stay"></span>You are there</li>}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .cal {
+    /* A light object like the report card, so highlighted months keep their
+       contrast on sunken bands; transparent on dark bands. */
+    --cal-bg: var(--color-surface-raised);
+    container-type: inline-size;
+    width: 100%;
+    max-width: 40rem;
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    line-height: 1.4;
+    color: var(--tone-text);
+  }
+
+  .cal__strip {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    background: var(--cal-bg);
+    border: 1px solid var(--tone-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .cal__cell {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    min-width: 0;
+    height: 3.5rem;
+    padding-bottom: 0.5rem;
+    border-left: 1px solid var(--tone-border);
+  }
+
+  .cal__cell:first-child {
+    border-left: 0;
+  }
+
+  .cal__cell--hl {
+    background: var(--tone-surface-sunken);
+  }
+
+  .cal__m {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  /* Inset track: a tick can never sit against a cell hairline */
+  .cal__ticks {
+    position: absolute;
+    inset: 0 4px auto 4px;
+    height: 1.25rem;
+  }
+
+  .cal__tick {
+    position: absolute;
+    top: 0;
+    display: block;
+    width: 2px;
+    height: 100%;
+    margin-left: -1px;
+    background: var(--tone-rule);
+    border-radius: 0 0 1px 1px;
+  }
+
+  .cal__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    margin-block-start: var(--space-1);
+    color: var(--tone-text-muted);
+  }
+
+  .cal__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  .cal__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    list-style: none;
+  }
+
+  .cal__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  .cal__key {
+    display: inline-block;
+    flex: none;
+  }
+
+  .cal__key--tick {
+    width: 2px;
+    height: 1em;
+    border-radius: 0 0 1px 1px;
+    background: var(--tone-rule);
+  }
+
+  .cal__key--stay {
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 1px;
+    background: var(--tone-surface-sunken);
+  }
+
+  /* Narrow containers: two rows of six */
+  @container (max-width: 24rem) {
+    .cal__strip {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .cal__cell:nth-child(7) {
+      border-left: 0;
+    }
+    .cal__cell:nth-child(n + 7) {
+      border-top: 1px solid var(--tone-border);
+    }
+  }
+</style>

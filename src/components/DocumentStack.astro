@@ -1,0 +1,207 @@
+---
+/**
+ * DocumentStack: a cheap, on-brand fallback artefact. Three offset raised
+ * sheets suggest a set of reports; the front sheet carries a title, a visit
+ * label, two small hatched photograph frames, text lines and a page footer.
+ * Pure HTML and CSS apart from the camera Glyph. The sheets stay paper-white
+ * on dark bands; only the caption below reads the tone tokens.
+ */
+import Glyph from './Glyph.astro';
+
+interface Props {
+  /** Caption under the stack; also seeds the accessible name. */
+  label?: string;
+  /** Title printed on the front sheet. */
+  title?: string;
+  /** Right-aligned reference on the front sheet, e.g. "Visit 03". */
+  meta?: string;
+  /** Lines in each paragraph block on the front sheet (1-5). */
+  lines?: number;
+  class?: string;
+}
+
+const { label = 'Condition report with photographs', lines = 3, title = 'Condition report', meta = 'Visit 03', class: className } = Astro.props;
+const count = Math.min(5, Math.max(1, Math.round(lines)));
+const ariaLabel = `${label}: a stack of three report pages; the front page shows a title, two photograph frames and short lines of text`;
+---
+
+<div class:list={['stack', className]} role="img" aria-label={ariaLabel}>
+  <div class="stack__pile" aria-hidden="true">
+    <span class="stack__sheet stack__sheet--back"></span>
+    <span class="stack__sheet stack__sheet--mid"></span>
+    <div class="stack__sheet stack__doc">
+      <div class="stack__head">
+        <span class="stack__title">{title}</span>
+        <span class="stack__meta">{meta}</span>
+      </div>
+      <div class="stack__figure">
+        <span class="stack__photo"><Glyph name="camera" size={20} /></span>
+        <span class="stack__lines stack__lines--caption">
+          <span class="stack__line"></span>
+          <span class="stack__line"></span>
+        </span>
+      </div>
+      <div class="stack__lines">
+        {Array.from({ length: count }, () => <span class="stack__line"></span>)}
+      </div>
+      <div class="stack__figure stack__figure--flip">
+        <span class="stack__photo"><Glyph name="camera" size={20} /></span>
+        <span class="stack__lines stack__lines--caption">
+          <span class="stack__line"></span>
+          <span class="stack__line"></span>
+        </span>
+      </div>
+      <div class="stack__lines">
+        {Array.from({ length: count }, () => <span class="stack__line"></span>)}
+      </div>
+      <div class="stack__foot">
+        <span class="stack__rule"></span>
+        <span class="stack__meta">Page 1 of 3</span>
+      </div>
+    </div>
+  </div>
+  <p class="stack__label">{label}</p>
+</div>
+
+<style>
+  .stack {
+    --offset: 10px;
+    width: 100%;
+    max-width: 18rem;
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    line-height: 1.4;
+  }
+
+  .stack__pile {
+    position: relative;
+    padding: calc(var(--offset) * 2) calc(var(--offset) * 2) 0 0;
+  }
+
+  .stack__sheet {
+    display: block;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface-raised);
+  }
+
+  .stack__sheet--back,
+  .stack__sheet--mid {
+    position: absolute;
+    inset: calc(var(--offset) * 2) calc(var(--offset) * 2) 0 0;
+  }
+
+  .stack__sheet--mid {
+    translate: var(--offset) calc(var(--offset) * -1);
+  }
+
+  .stack__sheet--back {
+    translate: calc(var(--offset) * 2) calc(var(--offset) * -2);
+  }
+
+  .stack__doc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 3 / 4;
+    padding: var(--space-2);
+    color: var(--color-text);
+  }
+
+  .stack__head,
+  .stack__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .stack__head {
+    padding-block-end: var(--space-1);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  .stack__foot {
+    margin-block-start: auto;
+    padding-block-start: var(--space-1);
+    border-block-start: 1px solid var(--color-border);
+  }
+
+  .stack__title {
+    font-weight: 600;
+    color: var(--color-primary-strong);
+  }
+
+  .stack__meta {
+    flex: none;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stack__rule {
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-accent);
+  }
+
+  .stack__figure {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: 12px;
+  }
+
+  .stack__figure--flip {
+    flex-direction: row-reverse;
+  }
+
+  .stack__photo {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40%;
+    aspect-ratio: 3 / 2;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface-sunken);
+    background-image: var(--pattern-hatch);
+    outline: 1px solid var(--color-accent);
+    outline-offset: -5px;
+    color: var(--color-text-muted);
+  }
+
+  .stack__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .stack__lines--caption {
+    flex: 1;
+  }
+
+  .stack__line {
+    display: block;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--color-border);
+  }
+
+  .stack__line:nth-child(4n + 2) {
+    width: 90%;
+  }
+
+  .stack__line:nth-child(4n + 3) {
+    width: 78%;
+  }
+
+  .stack__lines--caption .stack__line:nth-child(2) {
+    width: 70%;
+  }
+
+  .stack__label {
+    margin-block-start: var(--space-2);
+    color: var(--tone-text-muted);
+  }
+</style>

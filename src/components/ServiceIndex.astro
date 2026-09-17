@@ -1,0 +1,121 @@
+---
+/**
+ * The seven services as a ruled navigation list, optionally grouped under the
+ * three group labels. Used as the hero visual on small screens, inside the
+ * mobile menu and on the services overview.
+ */
+import Glyph from './Glyph.astro';
+import { services, getService } from '../data/services';
+import { serviceGroups } from '../data/service-index';
+import { url } from '../lib/url';
+
+export interface Props {
+  heading?: string;
+  grouped?: boolean;
+  /** Heading level for the optional heading and the group labels. */
+  level?: 2 | 3;
+  class?: string;
+  /** Called from inside the mobile menu: rows close the dialog when clicked. */
+  compact?: boolean;
+  /** Accessible name of the navigation landmark; must be unique on the page. */
+  label?: string;
+  /** Render as a plain group instead of a navigation landmark (inside the mobile menu's own nav). */
+  as?: 'nav' | 'div';
+}
+
+const { heading, grouped = false, level = 2, class: className, compact = false, label = 'Service list', as: Tag = 'nav' } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
+const groups = grouped ? serviceGroups.map((g) => ({ label: g.label, items: g.slugs.map(getService) })) : [{ label: '', items: services }];
+---
+
+<Tag class:list={['service-index', { 'service-index--compact': compact }, className]} aria-label={Tag === 'nav' ? label : undefined}>
+  {heading && <p class="eyebrow service-index__heading">{heading}</p>}
+  {groups.map((g) => (
+    <div class="service-index__group">
+      {g.label && <Heading class="service-index__label">{g.label}</Heading>}
+      <ul class="list-plain" role="list">
+        {g.items.map((s) => (
+          <li>
+            <a class="service-index__row" href={url(`/services/${s.slug}/`)}>
+              <span class="service-index__code tabular" aria-hidden="true">{s.code}</span>
+              <Glyph name={s.icon} size={compact ? 20 : 22} class="service-index__glyph" />
+              <span class="service-index__name">{s.name}</span>
+              <Glyph name="arrow-right" size={18} class="service-index__arrow" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</Tag>
+
+<style>
+  .service-index__heading {
+    margin-block-end: var(--space-1);
+  }
+
+  .service-index__group + .service-index__group {
+    margin-block-start: var(--space-3);
+  }
+
+  .service-index__label {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--tone-eyebrow);
+    margin-block-end: var(--space-1);
+  }
+
+  .service-index__row {
+    display: grid;
+    grid-template-columns: 2.25rem 1.75rem 1fr 1.5rem;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 3rem;
+    padding-block: var(--space-1);
+    border-top: 1px solid var(--tone-border);
+    color: var(--tone-text);
+    text-decoration: none;
+  }
+
+  li:last-child .service-index__row {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .service-index__code {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--tone-eyebrow);
+  }
+
+  .service-index__glyph {
+    color: var(--tone-link);
+  }
+
+  .service-index__name {
+    font-weight: 500;
+  }
+
+  .service-index__arrow {
+    color: var(--tone-text-muted);
+    transition: transform var(--duration) var(--ease);
+  }
+
+  .service-index__row:hover .service-index__name {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.16em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .service-index__row:hover .service-index__arrow {
+      transform: translateX(4px);
+    }
+  }
+
+  .service-index--compact .service-index__row {
+    min-height: 2.75rem;
+  }
+</style>

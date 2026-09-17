@@ -1,0 +1,178 @@
+---
+/**
+ * The three ways to reach a person (phone, WhatsApp, email) plus hours and,
+ * when configured, the areas covered and a postal address. Reads everything
+ * from site config and renders nothing for empty values.
+ *
+ * `compact` renders a tight list for the footer and mobile menu; the default
+ * renders large tappable rows for the contact page and contact strip.
+ */
+import Glyph from './Glyph.astro';
+import { site, telUrl, whatsappUrl, mailtoUrl, hasWhatsApp, hasPhone } from '../config/site';
+
+interface Props {
+  compact?: boolean;
+  /** Pre-filled WhatsApp message. */
+  whatsappMessage?: string;
+  class?: string;
+}
+
+const { compact = false, whatsappMessage, class: className } = Astro.props;
+const { contact } = site;
+const routes = [
+  hasPhone() && { key: 'phone', glyph: 'handset', label: 'Call', value: contact.phoneDisplay, href: telUrl() },
+  hasWhatsApp() && { key: 'whatsapp', glyph: 'whatsapp', label: 'WhatsApp', value: contact.whatsappDisplay || contact.phoneDisplay, href: whatsappUrl(whatsappMessage) },
+  contact.email && { key: 'email', glyph: 'envelope', label: 'Email', value: contact.email, href: mailtoUrl() },
+].filter(Boolean) as { key: string; glyph: 'handset' | 'whatsapp' | 'envelope'; label: string; value: string; href: string }[];
+---
+
+<div class:list={['contact-details', { 'contact-details--compact': compact }, className]}>
+  <ul class="list-plain contact-details__routes" role="list">
+    {routes.map((r) => (
+      <li>
+        <a class="contact-details__route" href={r.href}>
+          <Glyph name={r.glyph} size={compact ? 18 : 24} class="contact-details__glyph" />
+          <span class="contact-details__label">{r.label}</span>
+          <span class="contact-details__value tabular">{r.value}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  {(contact.hours || site.areasCovered || contact.addressLines.length > 0) && (
+    <dl class="contact-details__meta">
+      {contact.hours && (
+        <div>
+          <dt>Hours</dt>
+          <dd>{contact.hours}</dd>
+        </div>
+      )}
+      {site.areasCovered && (
+        <div>
+          <dt>Areas covered</dt>
+          <dd>{site.areasCovered}</dd>
+        </div>
+      )}
+      {contact.addressLines.length > 0 && (
+        <div>
+          <dt>Address</dt>
+          <dd>
+            {contact.addressLines.map((line, i) => (
+              <>
+                {i > 0 && <br />}
+                {line}
+              </>
+            ))}
+          </dd>
+        </div>
+      )}
+    </dl>
+  )}
+</div>
+
+<style>
+  .contact-details__routes {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .contact-details {
+    --contact-label-w: 5.5rem;
+    --contact-glyph-w: 1.5rem;
+  }
+
+  .contact-details__route {
+    display: grid;
+    grid-template-columns: var(--contact-glyph-w) var(--contact-label-w) 1fr;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 3.5rem;
+    padding: var(--space-2) var(--space-2);
+    margin-inline: calc(-1 * var(--space-2));
+    border-radius: var(--radius);
+    color: var(--tone-text);
+    text-decoration: none;
+    transition: background-color var(--duration-fast) var(--ease);
+  }
+
+  .contact-details__route:hover {
+    background: color-mix(in srgb, var(--tone-text) 6%, transparent);
+  }
+
+  .contact-details__route:hover .contact-details__value {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.16em;
+  }
+
+  .contact-details__glyph {
+    color: var(--tone-rule);
+  }
+
+  .contact-details__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tone-text-muted);
+  }
+
+  .contact-details__value {
+    font-size: var(--step-1);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-details__meta {
+    display: grid;
+    gap: var(--space-2);
+    margin-block-start: var(--space-4);
+    padding-block-start: var(--space-3);
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .contact-details__meta div {
+    display: grid;
+    /* dt spans the glyph column plus the label column so values line up with the routes */
+    grid-template-columns: calc(var(--contact-glyph-w) + var(--space-2) + var(--contact-label-w)) 1fr;
+    gap: var(--space-2);
+  }
+
+  .contact-details__meta dt {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tone-text-muted);
+  }
+
+  /* Compact: footer and mobile menu */
+  .contact-details--compact .contact-details__route {
+    min-height: 2.75rem;
+    padding: var(--space-1) var(--space-1);
+    margin-inline: calc(-1 * var(--space-1));
+    grid-template-columns: auto minmax(0, auto) 1fr;
+    gap: var(--space-1);
+  }
+
+  .contact-details--compact .contact-details__label {
+    font-size: 0.7rem;
+    min-width: 4.5rem;
+  }
+
+  .contact-details--compact .contact-details__value {
+    font-size: var(--step-0);
+    font-weight: 500;
+  }
+
+  .contact-details--compact .contact-details__meta {
+    margin-block-start: var(--space-2);
+    padding-block-start: var(--space-2);
+    gap: var(--space-1);
+    font-size: var(--step--1);
+  }
+
+  .contact-details--compact .contact-details__meta div {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+</style>

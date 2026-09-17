@@ -1,0 +1,42 @@
+---
+/**
+ * A horizontal band with vertical rhythm and a centred container.
+ * Tone switches the palette for everything inside via the --tone-* tokens.
+ */
+export interface Props {
+  tone?: 'surface' | 'sunken' | 'inverse';
+  padding?: 'default' | 'tight' | 'none';
+  id?: string;
+  class?: string;
+  as?: 'section' | 'div' | 'article' | 'aside';
+  labelledby?: string;
+}
+
+const { tone = 'surface', padding = 'default', id, class: className, as: Tag = 'section', labelledby } = Astro.props;
+---
+
+<Tag
+  id={id}
+  class:list={['band', `band--${padding}`, tone !== 'surface' && `tone-${tone}`, className]}
+  aria-labelledby={labelledby}
+>
+  <div class="container">
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .band {
+    background: var(--tone-bg);
+    color: var(--tone-text);
+  }
+
+  .band--default {
+    padding-block: var(--space-section);
+  }
+
+  .band--tight {
+    padding-block: var(--space-section-tight);
+  }
+
+</style>

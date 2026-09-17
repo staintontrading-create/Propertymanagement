@@ -1,0 +1,191 @@
+---
+/**
+ * A coded key tag as kept in the key cabinet: rounded portrait tag with a
+ * punched, eyeletted hole and a brass split ring, drawn as inline SVG, with
+ * real HTML text on the face (tag code, "No address on tag", a movement log
+ * in tabular figures). A second tag peeks out behind it as a hairline
+ * silhouette to suggest the rest of the cabinet. The tag is a raised white
+ * object, so it keeps --color-text on light and dark bands alike; only the
+ * hole and the peeking tag read the band beneath.
+ */
+import Glyph from './Glyph.astro';
+
+interface Props {
+  /** Two-digit cabinet code printed large on the tag. */
+  code?: string;
+  /** Movement log; " · " separates entries onto their own lines. */
+  logLine?: string;
+  /** Show the second tag peeking out behind. */
+  peek?: boolean;
+  class?: string;
+}
+
+const { code = '07', logLine = 'Logged out 09:10 · back in 11:45', peek = true, class: className } = Astro.props;
+const entries = logLine.split(' · ');
+---
+
+<div
+  class:list={['key-tag', { 'key-tag--peek': peek }, className]}
+  role="img"
+  aria-label="Coded key tag with no address and a logged out and in time"
+>
+  <div class="key-tag__body" aria-hidden="true">
+    <svg class="key-tag__draw" viewBox="0 0 224 310" xmlns="http://www.w3.org/2000/svg" focusable="false">
+      <!-- The split ring is drawn first so the face covers it, and the hole is
+           cut out of the face (even-odd) so the ring shows through it. -->
+      <circle class="key-tag__ring" cx="112" cy="34" r="16"></circle>
+      <path
+        class="key-tag__face"
+        fill-rule="evenodd"
+        d="M10.75 30.75h202.5a10 10 0 0 1 10 10v258.5a10 10 0 0 1-10 10H10.75a10 10 0 0 1-10-10V40.75a10 10 0 0 1 10-10Z M112 41.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13Z"
+      ></path>
+      <circle class="key-tag__eyelet" cx="112" cy="48" r="11"></circle>
+    </svg>
+    <div class="key-tag__text">
+      <div class="key-tag__head">
+        <p class="key-tag__code"><span class="key-tag__label">Tag</span>{code}</p>
+        <Glyph name="key" size={20} class="key-tag__glyph" />
+      </div>
+      <p class="key-tag__note">No address on tag</p>
+      <span class="key-tag__lines"></span>
+      <p class="key-tag__log">
+        {entries.map((entry, i) => (
+          <>
+            {i > 0 && <span class="key-tag__sep">·</span>}
+            <span class="key-tag__entry">{entry}</span>
+          </>
+        ))}
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .key-tag {
+    --peek: 2rem;
+    width: 100%;
+    max-width: calc(14rem + var(--peek));
+    padding: 0 var(--peek) var(--space-2) 0;
+    font-family: var(--font-body);
+    line-height: 1.4;
+  }
+
+  .key-tag__body {
+    position: relative;
+    display: grid;
+    isolation: isolate;
+  }
+
+  /* Second tag peeking out behind, fanned from the hook point */
+  .key-tag--peek .key-tag__body::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 9.7% 0 0 0;
+    border: 1px solid var(--tone-border);
+    border-radius: 10px;
+    transform-origin: 50% 6.4%;
+    transform: translate(4%, 3%) rotate(-3.5deg);
+  }
+
+  .key-tag__draw,
+  .key-tag__text {
+    grid-area: 1 / 1;
+    width: 100%;
+  }
+
+  .key-tag__draw > * {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .key-tag__face {
+    fill: var(--color-surface-raised);
+    stroke: var(--color-border-strong);
+    stroke-width: 1.5;
+  }
+
+  .key-tag__eyelet {
+    fill: none;
+    stroke: var(--color-border-strong);
+    stroke-width: 1;
+  }
+
+  .key-tag__ring {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+  }
+
+  .key-tag__text {
+    display: flex;
+    flex-direction: column;
+    /* top inset is width-based so it tracks the SVG's scale */
+    padding: 30% var(--space-2) var(--space-2);
+    color: var(--color-text);
+  }
+
+  .key-tag__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-1);
+  }
+
+  .key-tag__code {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--step-2);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'opsz' 36;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+
+  .key-tag__label {
+    display: block;
+    margin-block-end: 0.15em;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--color-accent-text);
+  }
+
+  .key-tag__glyph {
+    margin-block-start: 0.2rem;
+    color: var(--color-text-muted);
+  }
+
+  .key-tag__note {
+    margin-block-start: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  /* Write-on lines, as on a real tag, fill the space between the note and the log */
+  .key-tag__lines {
+    flex: 1 1 auto;
+    min-height: var(--space-5);
+    margin-block: var(--space-2) var(--space-1);
+    background: repeating-linear-gradient(to bottom, transparent 0 calc(var(--space-3) - 1px), var(--color-border) calc(var(--space-3) - 1px) var(--space-3));
+  }
+
+  .key-tag__log {
+    margin-block-start: 0;
+    padding-block-start: var(--space-1);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .key-tag__entry {
+    display: inline;
+  }
+
+  .key-tag__sep {
+    margin-inline: 0.35em;
+    color: var(--color-text-muted);
+  }
+</style>

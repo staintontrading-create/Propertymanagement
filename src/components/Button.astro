@@ -1,0 +1,157 @@
+---
+/**
+ * The site's one button. Renders an <a> when `href` is given, otherwise a
+ * <button>. Variants:
+ *   primary   solid primary ink, on-dark text (default)
+ *   secondary 1px outline in the current tone
+ *   paper     paper background, primary text (what primary becomes on dark bands)
+ *   link      underlined text link with a trailing arrow
+ * On dark bands (.tone-inverse) primary automatically renders as paper, so
+ * pages rarely need to pick `paper` explicitly. The phone and WhatsApp pills in
+ * the header and contact bar are their own components.
+ */
+import Glyph from './Glyph.astro';
+import type { GlyphName } from './Glyph.astro';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'paper' | 'link';
+  type?: 'button' | 'submit' | 'reset';
+  icon?: GlyphName;
+  iconPosition?: 'start' | 'end';
+  arrow?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  href,
+  variant = 'primary',
+  type = 'button',
+  icon,
+  iconPosition = 'start',
+  arrow = variant === 'link',
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const attrs = href ? { href, ...rest } : { type, ...rest };
+---
+
+<Tag class:list={['button', `button--${variant}`, className]} {...attrs}>
+  {icon && iconPosition === 'start' && <Glyph name={icon} size={20} class="button__icon" />}
+  <span class="button__label"><slot /></span>
+  {icon && iconPosition === 'end' && <Glyph name={icon} size={20} class="button__icon" />}
+  {arrow && !icon && <Glyph name="arrow-right" size={18} class="button__arrow" />}
+</Tag>
+
+<style>
+  .button {
+    --button-bg: var(--color-primary);
+    --button-fg: var(--color-text-on-dark);
+    --button-border: var(--color-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    min-height: 3rem;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid var(--button-border);
+    border-radius: var(--radius);
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font-weight: 600;
+    font-size: var(--step-0);
+    line-height: 1.2;
+    text-decoration: none;
+    text-align: center;
+    transition:
+      background-color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease),
+      color var(--duration) var(--ease),
+      transform var(--duration) var(--ease);
+  }
+
+  .button:hover {
+    --button-bg: var(--color-primary-strong);
+    --button-border: var(--color-primary-strong);
+    text-decoration: none;
+  }
+
+  .button:active {
+    transform: translateY(1px);
+  }
+
+  .button--secondary {
+    --button-bg: transparent;
+    --button-fg: var(--tone-link);
+    --button-border: var(--tone-link);
+  }
+
+  .button--secondary:hover {
+    --button-bg: var(--color-surface-sunken);
+    --button-fg: var(--color-primary-strong);
+    --button-border: var(--color-primary-strong);
+  }
+
+  .button--paper {
+    --button-bg: var(--color-surface);
+    --button-fg: var(--color-primary-strong);
+    --button-border: var(--color-surface);
+  }
+
+  .button--paper:hover {
+    --button-bg: var(--color-surface-raised);
+    --button-fg: var(--color-primary-strong);
+    --button-border: var(--color-surface-raised);
+  }
+
+  .button--link {
+    --button-bg: transparent;
+    --button-fg: var(--tone-link);
+    --button-border: transparent;
+    /* Inline so a wrapped label keeps its arrow after the last word; the block
+       padding keeps the hit area at 44px without changing the text layout. */
+    display: inline;
+    min-height: 0;
+    padding: 0.625rem 0;
+    line-height: 1.5;
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .button--link:hover {
+    --button-bg: transparent;
+    --button-border: transparent;
+    text-decoration-thickness: 2px;
+  }
+
+  .button__arrow {
+    transition: transform var(--duration) var(--ease);
+  }
+
+  .button--link .button__arrow {
+    display: inline-block;
+    vertical-align: middle;
+    margin-inline-start: 0.35em;
+  }
+
+  .button--link:hover .button__arrow {
+    transform: translateX(3px);
+  }
+
+  /* Dark bands: the primary button inverts to paper */
+  :global(.tone-inverse) .button--primary {
+    --button-bg: var(--color-surface);
+    --button-fg: var(--color-primary-strong);
+    --button-border: var(--color-surface);
+  }
+
+  :global(.tone-inverse) .button--primary:hover {
+    --button-bg: var(--color-surface-raised);
+    --button-border: var(--color-surface-raised);
+  }
+</style>

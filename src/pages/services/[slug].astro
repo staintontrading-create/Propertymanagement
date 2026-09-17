@@ -1,0 +1,294 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Hero from '../../components/Hero.astro';
+import Button from '../../components/Button.astro';
+import Section from '../../components/Section.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import SituationList from '../../components/SituationList.astro';
+import SpecTable from '../../components/SpecTable.astro';
+import ExcludedList from '../../components/ExcludedList.astro';
+import Ledger from '../../components/Ledger.astro';
+import PhotoSlot from '../../components/PhotoSlot.astro';
+import QuoteRequestPanel from '../../components/QuoteRequestPanel.astro';
+import FAQ from '../../components/FAQ.astro';
+import RelatedServices from '../../components/RelatedServices.astro';
+import ReportCard from '../../components/ReportCard.astro';
+import QuoteSheet from '../../components/QuoteSheet.astro';
+import KeyTag from '../../components/KeyTag.astro';
+import CalendarStrip from '../../components/CalendarStrip.astro';
+import SnagPlan from '../../components/SnagPlan.astro';
+import CycleDiagram from '../../components/CycleDiagram.astro';
+import HubDiagram from '../../components/HubDiagram.astro';
+import DocumentStack from '../../components/DocumentStack.astro';
+import { services } from '../../data/services';
+import { groupOf } from '../../data/service-index';
+import { site } from '../../config/site';
+import { url, absoluteUrl } from '../../lib/url';
+import type { Service } from '../../data/types';
+
+export const getStaticPaths = (() => services.map((service) => ({ params: { slug: service.slug }, props: { service } }))) satisfies GetStaticPaths;
+
+interface Props {
+  service: Service;
+}
+
+const { service } = Astro.props;
+const { slug } = service;
+const group = groupOf(slug);
+const path = `/services/${slug}/`;
+const includedRows = service.included.map((item) => ({ key: item.title, detail: item.detail }));
+const deliverableRows = service.deliverables.map((item) => ({ key: item.title, detail: item.detail }));
+/** The "What" line: the deliverables by name, as one sentence. */
+const deliverableNames = service.deliverables.map((item, i) => (i === 0 ? item.title : item.title.charAt(0).toLowerCase() + item.title.slice(1)));
+const whatYouReceive = `${deliverableNames.length > 1 ? `${deliverableNames.slice(0, -1).join(', ')} and ${deliverableNames.at(-1)}` : deliverableNames[0]}.`;
+const [reportingSlot, siteSlotA, siteSlotB] = service.photoSlots;
+/** PhotoSlot props for a content slot; `src` is a public/ path, prefixed with the base. */
+const slotProps = (slot: (typeof service.photoSlots)[number]) => ({
+  label: slot.label,
+  ratio: slot.ratio,
+  src: slot.src ? url(slot.src) : undefined,
+  alt: slot.alt,
+  width: slot.width,
+  height: slot.height,
+});
+
+/** Which artefact sits in the reporting section, if any (the hero artefact is chosen in the template). */
+const hasReportingArtefact = ['property-management', 'renovations', 'property-handovers', 'property-inspections', 'holiday-home-maintenance'].includes(slug);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.name,
+    serviceType: service.name,
+    description: service.metaDescription,
+    url: absoluteUrl(path, Astro.site),
+    provider: { '@type': 'Organization', name: site.name, url: absoluteUrl('/', Astro.site) },
+    ...(site.areasCovered ? { areaServed: site.areasCovered } : {}),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: service.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+    })),
+  },
+];
+---
+
+<BaseLayout title={service.name} description={service.metaDescription} path={path} jsonLd={jsonLd}>
+  <div class="container breadcrumb-row">
+    <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Services', path: '/services/' }, { label: `${service.code} ${service.name}` }]} />
+  </div>
+
+  <Hero variant="service" eyebrow={`${service.code} · ${group.label}`} title={service.name} lead={service.headline}>
+    <p class="hero__promise">{service.promise}</p>
+    <Fragment slot="actions">
+      <Button href="#quote">Request a quote for this service</Button>
+      <Button variant="secondary" href={url(`/contact/?service=${slug}`)}>Talk to us</Button>
+    </Fragment>
+    <Fragment slot="visual">
+      {slug === 'property-management' && <ReportCard />}
+      {slug === 'handyman' && <QuoteSheet title="Quote sheet" separate={['Rewiring of hallway sockets: quoted separately by an electrician']} />}
+      {slug === 'renovations' && <QuoteSheet variant="milestones" />}
+      {slug === 'short-term-rentals' && <CycleDiagram />}
+      {slug === 'property-handovers' && <SnagPlan />}
+      {slug === 'property-inspections' && <CalendarStrip cadenceWeeks={8} label="Inspection every 8 weeks" />}
+      {slug === 'holiday-home-maintenance' && <KeyTag class="hero-keytag" />}
+    </Fragment>
+  </Hero>
+
+  <Section id="who" padding="tight">
+    <SectionHeading eyebrow="Who this is for" title="This is for you if…" align="split" lead={`Typical for ${service.typicalFor}.`} />
+    <SituationList items={service.audience} />
+  </Section>
+
+  <Section tone="sunken" id="included">
+    <SectionHeading eyebrow="What is included" title="What we do, and what we do not." align="split" lead="Everything in the first list is part of the service and appears in your written scope. Everything in the second is arranged separately, so there are no surprises on the statement." />
+    <div class="spec-pair">
+      <SpecTable rows={includedRows} marker="included" caption="Included" />
+      <ExcludedList items={service.notIncluded} caption="Arranged separately" />
+    </div>
+  </Section>
+
+  <Section id="how-it-works">
+    <div class="split">
+      <SectionHeading eyebrow="How it works" title="Step by step." />
+      <Ledger steps={service.steps} />
+    </div>
+  </Section>
+
+  <Section tone="sunken" id="reporting">
+    <SectionHeading eyebrow="Reporting" title="What you will hear from us, and when." align="split" />
+    <div class="reporting">
+      <div class="reporting__text">
+        <dl class="reporting__meta">
+          <div>
+            <dt>What</dt>
+            <dd>{whatYouReceive}</dd>
+          </div>
+          <div>
+            <dt>Format</dt>
+            <dd>{service.reporting.format}</dd>
+          </div>
+          <div>
+            <dt>When</dt>
+            <dd>{service.reporting.cadence}</dd>
+          </div>
+          <div>
+            <dt>Channel</dt>
+            <dd>{service.reporting.channel}</dd>
+          </div>
+        </dl>
+        <SpecTable rows={deliverableRows} marker="included" caption="What you receive" class="reporting__deliverables" />
+      </div>
+      <div class="reporting__visual">
+        {hasReportingArtefact && (
+          <div class="reporting__artefact">
+            {slug === 'property-management' && <HubDiagram />}
+            {slug === 'renovations' && <DocumentStack title="Running cost sheet" meta="Week 04" label="Milestone photographs and the running cost sheet" />}
+            {slug === 'property-handovers' && <DocumentStack title="Handover pack" meta="Day 1" label="Handover pack with photographs" />}
+            {slug === 'property-inspections' && (
+              <ReportCard
+                title="Condition report"
+                visitLabel="Visit 03 of 06"
+                photoLabel="kitchen, taps and seals"
+                photoCaption="Kitchen, no leaks found"
+                rows={['Roof line, gutters and exterior', 'Windows, doors and locks', 'Damp, leaks and ventilation', 'Smoke and carbon monoxide alarms', 'Heating and air conditioning']}
+                footer="Report sent to owner, 16:05"
+              />
+            )}
+            {slug === 'holiday-home-maintenance' && (
+              <CalendarStrip cadenceWeeks={2} label="Visit every fortnight, pre-arrival preparation before each stay" highlightMonths={[4, 8]} />
+            )}
+          </div>
+        )}
+        <PhotoSlot {...slotProps(reportingSlot)} />
+      </div>
+    </div>
+  </Section>
+
+  <Section id="on-site">
+    <SectionHeading eyebrow="On site" title="What we look at." align="split" lead="Two of the things you will see photographed in your reports." />
+    <div class="site-photos">
+      <PhotoSlot {...slotProps(siteSlotA)} />
+      <PhotoSlot {...slotProps(siteSlotB)} ratio={siteSlotA.ratio} />
+    </div>
+  </Section>
+
+  <Section tone="sunken" id="pricing">
+    <div class="split pricing">
+      <SectionHeading eyebrow="Pricing" title="How this service is priced." />
+      <div class="pricing__text flow">
+        {service.pricing.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+    </div>
+    <QuoteRequestPanel id="quote" preselect={slug} heading={`Request a written scope for ${service.name.toLowerCase()}`} />
+  </Section>
+
+  <Section id="questions">
+    <div class="split">
+      <SectionHeading eyebrow="Questions" title="Questions owners ask." />
+      <FAQ items={service.faqs} />
+    </div>
+  </Section>
+
+  <Section tone="sunken" id="related" padding="tight">
+    <SectionHeading eyebrow="Works well with" title="Services owners often combine with this one." />
+    <RelatedServices slugs={service.related} />
+  </Section>
+</BaseLayout>
+
+<style>
+  :global(.hero-keytag.key-tag.key-tag--peek) {
+    max-width: calc(18rem + 2rem);
+  }
+
+  .pricing__text {
+    max-width: var(--measure);
+  }
+
+  .spec-pair {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .reporting {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .reporting__meta {
+    display: grid;
+    gap: var(--space-3);
+    margin-block-end: var(--space-5);
+  }
+
+  .reporting__meta > div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .reporting__meta > div:last-child {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .reporting__meta dt {
+    font-weight: 600;
+    color: var(--tone-heading);
+  }
+
+  .reporting__meta dd {
+    max-width: 44ch;
+  }
+
+  .reporting__visual {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  .reporting__artefact {
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .reporting__visual :global(.slot) {
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .site-photos {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 40rem) {
+    .site-photos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .reporting {
+      grid-template-columns: 7fr 5fr;
+      align-items: start;
+    }
+
+    .reporting__visual {
+      justify-items: end;
+      /* The deliverables list is long; the artefact and photograph follow the reader down it */
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-4));
+      max-height: calc(100dvh - var(--header-height) - var(--space-4));
+      overflow: auto;
+    }
+  }
+</style>

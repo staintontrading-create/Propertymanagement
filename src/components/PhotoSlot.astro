@@ -1,0 +1,106 @@
+---
+/**
+ * A reserved image area. With no `src` it renders a finished, hatched frame
+ * with a brass inset and an honest label naming the intended shot, so the
+ * site looks complete before photographs exist. With `src` it renders the
+ * image inside the same frame with a faint warm overlay so photos join the
+ * paper-and-brass palette.
+ *
+ * Images must be local (public/ or src/assets); the build verifier fails on
+ * off-site image URLs.
+ */
+interface Props {
+  /** Local image path (already base-prefixed) or an imported asset src. */
+  src?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  ratio?: '16/9' | '4/3' | '3/2' | '4/5' | '1/1';
+  /** What the photo will show, e.g. "meter readings on handover day". */
+  label: string;
+  /** Optional visible caption under the frame. */
+  caption?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+}
+
+const { src, alt = '', width, height, ratio = '4/3', label, caption, class: className, loading = 'lazy' } = Astro.props;
+const cleanLabel = label.replace(/^photo:\s*/i, '');
+---
+
+<figure class:list={['slot', { 'slot--filled': Boolean(src) }, className]} style={`--ratio: ${ratio}`}>
+  <div class="slot__frame">
+    {src ? (
+      <img src={src} alt={alt} width={width} height={height} loading={loading} decoding="async" />
+    ) : (
+      <span class="slot__label"><span class="slot__label-key">Photo</span> {cleanLabel}</span>
+    )}
+  </div>
+  {caption && <figcaption class="slot__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .slot {
+    margin: 0;
+  }
+
+  .slot__frame {
+    position: relative;
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface-sunken);
+    background-image: var(--pattern-hatch);
+    outline: 1px solid var(--color-accent);
+    outline-offset: -8px;
+  }
+
+  .slot--filled .slot__frame {
+    background-image: none;
+  }
+
+  .slot__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slot--filled .slot__frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--photo-warm-overlay);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .slot__label {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    max-width: calc(100% - 2rem);
+    padding: 0.25rem 0.5rem;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+    line-height: 1.4;
+  }
+
+  .slot__label-key {
+    font-weight: 600;
+    color: var(--color-accent-text);
+  }
+
+  .slot__label-key::after {
+    content: ':';
+  }
+
+  .slot__caption {
+    margin-block-start: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--tone-text-muted);
+  }
+</style>

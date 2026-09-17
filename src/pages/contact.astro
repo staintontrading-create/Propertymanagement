@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import ContactDetails from '../components/ContactDetails.astro';
+import ContactForm from '../components/ContactForm.astro';
+import CheckList from '../components/CheckList.astro';
+import PhotoSlot from '../components/PhotoSlot.astro';
+import { site } from '../config/site';
+
+const description = 'Call, message on WhatsApp or use the form. You hear back within one working day, in writing, from the person who will look after your property.';
+---
+
+<BaseLayout title="Contact" description={description} path="/contact/" showContactStrip={false} showContactBar={false}>
+  <div class="container breadcrumb-row">
+    <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Contact' }]} />
+  </div>
+
+  <Hero
+    variant="page"
+    eyebrow="Contact"
+    title="Talk to us."
+    lead="Phone, WhatsApp or the form below. You will hear back within one working day, in writing."
+  />
+
+  <Section padding="tight">
+    <div class="contact-layout">
+      <div class="contact-layout__aside">
+        <h2 class="contact-layout__heading">Reach a person</h2>
+        <p class="contact-layout__intro">
+          Whichever way you get in touch, you reach someone who will read what you have written before replying, and who will be the same person next time.
+        </p>
+        <ContactDetails whatsappMessage={`Hello ${site.name}, I would like to talk about my property.`} />
+        <h3 class="contact-layout__subheading">What happens next</h3>
+        <CheckList
+          compact
+          items={[
+            'A written reply within one working day',
+            'A call or visit arranged at a time that suits you',
+            'A scope with costs before anything starts',
+          ]}
+        />
+        <div class="contact-layout__photo">
+          <PhotoSlot ratio="3/2" label="Photo: office or street" />
+        </div>
+      </div>
+      <div class="contact-layout__form">
+        <h2 class="contact-layout__heading">Send a message</h2>
+        <p class="contact-layout__intro">
+          Tell us where the property is, what you need and how you would like to be reached. Nothing you write here is added to a mailing list.
+        </p>
+        <ContactForm />
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .contact-layout {
+    display: grid;
+    gap: var(--space-6) var(--gutter);
+  }
+
+  .contact-layout__heading {
+    font-size: var(--step-2);
+  }
+
+  .contact-layout__subheading {
+    font-size: var(--step-0);
+    margin-block: var(--space-5) var(--space-2);
+  }
+
+  .contact-layout__intro {
+    margin-block: var(--space-2) var(--space-4);
+    max-width: 44ch;
+    color: var(--tone-text-muted);
+  }
+
+  .contact-layout__photo {
+    margin-block-start: var(--space-5);
+  }
+
+  @media (min-width: 56rem) {
+    .contact-layout {
+      grid-template-columns: 5fr 7fr;
+      align-items: start;
+    }
+  }
+</style>

@@ -1,0 +1,30 @@
+{
+  "name": "property-management-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Marketing website for a property management company: full management, handyman, renovations, short-term rentals, handovers, inspections and holiday-home care.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint:copy": "node scripts/lint-copy.mjs",
+    "verify": "node scripts/verify-dist.mjs",
+    "check:css": "node scripts/check-css-coverage.mjs",
+    "og-image": "node scripts/og-image.mjs",
+    "test": "npm run lint:copy && npm run check && npm run build && npm run verify && npm run check:css"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "linkedom": "^0.18.13",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,75 @@
+---
+/**
+ * "Who we work for": three owner situations, each pointing to the most
+ * relevant service, so a visitor can self-identify in seconds.
+ */
+import Button from './Button.astro';
+
+export interface AudienceItem {
+  title: string;
+  body: string;
+  linkLabel: string;
+  href: string;
+}
+
+interface Props {
+  items: AudienceItem[];
+  headingLevel?: 3 | 4;
+  class?: string;
+}
+
+const { items, headingLevel = 3, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as 'h3' | 'h4';
+---
+
+<ul class:list={['audience', className]} role="list">
+  {items.map((item) => (
+    <li class="audience__item">
+      <Heading class="audience__title">{item.title}</Heading>
+      <p class="audience__body">{item.body}</p>
+      <Button variant="link" href={item.href} class="audience__link">{item.linkLabel}</Button>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .audience {
+    list-style: none;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .audience__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-block-start: var(--space-3);
+    border-top: 2px solid var(--tone-rule);
+  }
+
+  .audience__title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--tone-heading);
+  }
+
+  .audience__body {
+    max-width: 38ch;
+  }
+
+  .audience__item :global(.audience__link) {
+    margin-block-start: auto;
+    justify-content: flex-start;
+    text-align: left;
+    align-self: flex-start;
+  }
+
+  @media (min-width: 56rem) {
+    .audience {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--gutter);
+    }
+  }
+</style>

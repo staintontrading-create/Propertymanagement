@@ -1,0 +1,101 @@
+---
+/**
+ * Definition list of what a service includes (tick markers) or what is
+ * arranged separately (dash markers), optionally linking each row to the
+ * sibling service that covers it.
+ */
+import Glyph from './Glyph.astro';
+
+export interface SpecRow {
+  key: string;
+  detail: string;
+}
+
+interface Props {
+  rows: SpecRow[];
+  marker?: 'included' | 'separate';
+  /** Optional heading rendered above the table. */
+  caption?: string;
+  captionLevel?: 3 | 4;
+  class?: string;
+}
+
+const { rows, marker = 'included', caption, captionLevel = 3, class: className } = Astro.props;
+const Caption = `h${captionLevel}` as 'h3' | 'h4';
+---
+
+<div class:list={['spec', `spec--${marker}`, className]}>
+  {caption && <Caption class="spec__caption">{caption}</Caption>}
+  <dl class="spec__list">
+    {rows.map((row) => (
+      <div class="spec__row">
+        <dt class="spec__key">
+          <span class="spec__marker" aria-hidden="true">
+            <Glyph name={marker === 'included' ? 'check' : 'dash'} size={16} strokeWidth={2} />
+          </span>
+          <span class="visually-hidden">{marker === 'included' ? 'Included:' : 'Arranged separately:'}</span>
+          {row.key}
+        </dt>
+        <dd class="spec__detail">
+          {row.detail}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</div>
+
+<style>
+  .spec__caption {
+    font-family: var(--font-body);
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--tone-eyebrow);
+    margin-block-end: var(--space-2);
+  }
+
+  .spec__row {
+    display: grid;
+    gap: var(--space-1) var(--space-4);
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--tone-border);
+  }
+
+  .spec__row:last-child {
+    border-bottom: 1px solid var(--tone-border);
+  }
+
+  .spec__key {
+    display: flex;
+    gap: var(--space-2);
+    align-items: flex-start;
+    font-weight: 600;
+    color: var(--tone-heading);
+  }
+
+  .spec__marker {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-block-start: 0.05rem;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--tone-rule);
+    color: var(--color-success);
+    background: var(--color-surface-raised);
+  }
+
+  .spec__detail {
+    color: var(--tone-text);
+    max-width: var(--measure);
+  }
+
+  @media (min-width: 40rem) {
+    .spec__row {
+      grid-template-columns: minmax(12rem, 1fr) 2fr;
+      padding-block: var(--space-3);
+    }
+  }
+</style>
