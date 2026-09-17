@@ -12,17 +12,18 @@ interface Props {
   class?: string;
 }
 
-const { size = 'default', link = true, class: className } = Astro.props;
+// `rest` carries the parent's data-astro-cid-* attribute (see Glyph.astro).
+const { size = 'default', link = true, class: className, ...rest } = Astro.props;
 const length = site.name.length;
 const lengthClass = length > 26 ? 'wordmark--xlong' : length > 18 ? 'wordmark--long' : '';
 ---
 
 {link ? (
-  <a href={url('/')} class:list={['wordmark', `wordmark--${size}`, lengthClass, className]} aria-label={`${site.name}, home`}>
+  <a {...rest} href={url('/')} class:list={['wordmark', `wordmark--${size}`, lengthClass, className]} aria-label={`${site.name}, home`}>
     <span class="wordmark__text">{site.name}</span>
   </a>
 ) : (
-  <span class:list={['wordmark', `wordmark--${size}`, lengthClass, className]}>
+  <span {...rest} class:list={['wordmark', `wordmark--${size}`, lengthClass, className]}>
     <span class="wordmark__text">{site.name}</span>
   </span>
 )}

@@ -45,10 +45,10 @@ npm install
 npm run dev        # http://localhost:4321/Propertymanagement/
 npm run build      # static output in dist/
 npm run preview    # serve dist/ locally
-npm test           # type check, build and verify the output
+npm test           # copy lint, type check, build, output verification and CSS coverage
 ```
 
-`npm run verify` (part of `npm test`) checks every generated page for broken internal links and anchors, one `<h1>`, unique titles and descriptions, alt text, heading order, leftover placeholders, and that the sitemap and robots.txt cover every page. `npm run lint:copy` (also part of `npm test`) fails the build if the copy picks up marketing filler, invented figures, jurisdiction-specific terms or American spellings.
+`npm run verify` (part of `npm test`) checks every generated page for broken internal links and anchors, one `<h1>`, unique titles and descriptions, alt text, heading order, leftover template artefacts (`{{`, `undefined`, `TODO`, lorem ipsum), and that the sitemap and robots.txt cover every page. `npm run check:css` fails the build if any CSS rule matches nothing on any page, which is how a component that forgets to forward Astro's scope attribute, or a rule nobody uses any more, gets caught. `npm run lint:copy` fails the build if the copy picks up marketing filler, invented figures, jurisdiction-specific terms or American spellings.
 
 ## Deploying
 
@@ -99,6 +99,7 @@ src/
   scripts/              the one client-side script (form enhancement)
 public/fonts/           self-hosted Fraunces and Inter
 scripts/verify-dist.mjs post-build checks
+scripts/check-css-coverage.mjs  fails on CSS rules that match no element
 scripts/lint-copy.mjs   content rules lint
 scripts/og-image.mjs    regenerates public/og-image.png from the built site
 ```

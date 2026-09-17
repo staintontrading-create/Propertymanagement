@@ -14,8 +14,9 @@
     "check": "astro check",
     "lint:copy": "node scripts/lint-copy.mjs",
     "verify": "node scripts/verify-dist.mjs",
+    "check:css": "node scripts/check-css-coverage.mjs",
     "og-image": "node scripts/og-image.mjs",
-    "test": "npm run lint:copy && npm run check && npm run build && npm run verify"
+    "test": "npm run lint:copy && npm run check && npm run build && npm run verify && npm run check:css"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "linkedom": "^0.18.13",
     "typescript": "^5.9.3"
   }
 }

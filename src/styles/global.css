@@ -91,7 +91,6 @@
 
   /* Layout */
   --container: 76rem;
-  --container-narrow: 46rem;
   --header-height: 4rem;
   /* Fixed mobile contact bar (ContactBar.astro): 3rem pill + 2 × space-1 padding + 1px border */
   --contact-bar-height: calc(3rem + 2 * var(--space-1) + 1px);
@@ -116,11 +115,7 @@
 .tone-sunken {
   --tone-bg: var(--color-surface-sunken);
 }
-.tone-raised {
-  --tone-bg: var(--color-surface-raised);
-}
-.tone-inverse,
-.tone-primary {
+.tone-inverse {
   --tone-bg: var(--color-surface-inverse);
   --tone-text: var(--color-text-on-dark);
   --tone-text-muted: var(--color-text-on-dark-muted);
@@ -131,9 +126,6 @@
   --tone-surface-sunken: rgba(247, 245, 240, 0.12);
   --tone-link: var(--color-text-on-dark);
   --tone-focus: var(--color-focus-on-dark);
-}
-.tone-primary {
-  --tone-bg: var(--color-primary);
 }
 
 /* ------------------------------------------------------------------------
@@ -302,12 +294,6 @@ small,
   font-variant-numeric: tabular-nums;
 }
 
-.display-italic {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  font-variation-settings: 'opsz' 36;
-}
 
 /* ------------------------------------------------------------------------
    Focus and motion
@@ -354,16 +340,6 @@ small,
   padding-inline: var(--gutter);
 }
 
-.container--narrow {
-  max-width: calc(var(--container-narrow) + 2 * var(--gutter));
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: var(--gutter);
-  row-gap: var(--space-4);
-}
 
 .flow > * + * {
   margin-block-start: var(--flow-space, var(--space-2));
@@ -416,11 +392,6 @@ small,
 /* Lists with a brass check or dash marker, used across the site */
 .list-plain {
   list-style: none;
-}
-
-.hatch {
-  background-color: var(--color-surface-sunken);
-  background-image: var(--pattern-hatch);
 }
 
 /* Long-form text (privacy notice, about) */

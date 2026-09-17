@@ -4,7 +4,7 @@
  * suggesting drawings and plans. The parent must be position: relative.
  */
 interface Props {
-  position?: 'right' | 'full' | 'left';
+  position?: 'right' | 'full';
   class?: string;
 }
 
@@ -29,18 +29,12 @@ const { position = 'right', class: className } = Astro.props;
     mask-image: radial-gradient(ellipse 60% 70% at 78% 45%, #000 15%, transparent 70%);
   }
 
-  .plan-grid--left {
-    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 22% 45%, #000 15%, transparent 70%);
-    mask-image: radial-gradient(ellipse 60% 70% at 22% 45%, #000 15%, transparent 70%);
-  }
-
   .plan-grid--full {
     -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 20%, transparent 75%);
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 20%, transparent 75%);
   }
 
-  :global(.tone-inverse) .plan-grid,
-  :global(.tone-primary) .plan-grid {
+  :global(.tone-inverse) .plan-grid {
     --color-border: rgba(247, 245, 240, 0.14);
   }
 </style>

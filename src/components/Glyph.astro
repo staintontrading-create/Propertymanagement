@@ -47,7 +47,9 @@ interface Props {
   strokeWidth?: number;
 }
 
-const { name, size = 24, label, class: className, strokeWidth = 1.5 } = Astro.props;
+// `rest` carries the parent's data-astro-cid-* attribute when the parent styles
+// this glyph through a class, so parent-scoped rules can reach the <svg> root.
+const { name, size = 24, label, class: className, strokeWidth = 1.5, ...rest } = Astro.props;
 
 const paths: Record<GlyphName, string> = {
   house: 'M3 11.5 12 4l9 7.5M5 10v10h14V10M10 20v-6h4v6',
@@ -91,6 +93,7 @@ const d = paths[name];
 ---
 
 <svg
+  {...rest}
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
   width={size}

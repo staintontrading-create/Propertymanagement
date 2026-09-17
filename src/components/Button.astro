@@ -6,23 +6,21 @@
  *   secondary 1px outline in the current tone
  *   paper     paper background, primary text (what primary becomes on dark bands)
  *   link      underlined text link with a trailing arrow
- *   pill      rounded pill used for the phone and WhatsApp actions
- * On dark bands (.tone-inverse / .tone-primary) primary automatically renders
- * as paper, so pages rarely need to pick `paper` explicitly.
+ * On dark bands (.tone-inverse) primary automatically renders as paper, so
+ * pages rarely need to pick `paper` explicitly. The phone and WhatsApp pills in
+ * the header and contact bar are their own components.
  */
 import Glyph from './Glyph.astro';
 import type { GlyphName } from './Glyph.astro';
 
 interface Props {
   href?: string;
-  variant?: 'primary' | 'secondary' | 'paper' | 'link' | 'pill';
+  variant?: 'primary' | 'secondary' | 'paper' | 'link';
   type?: 'button' | 'submit' | 'reset';
   icon?: GlyphName;
   iconPosition?: 'start' | 'end';
   arrow?: boolean;
-  size?: 'default' | 'small';
   class?: string;
-  block?: boolean;
   [key: string]: unknown;
 }
 
@@ -33,9 +31,7 @@ const {
   icon,
   iconPosition = 'start',
   arrow = variant === 'link',
-  size = 'default',
   class: className,
-  block = false,
   ...rest
 } = Astro.props;
 
@@ -43,7 +39,7 @@ const Tag = href ? 'a' : 'button';
 const attrs = href ? { href, ...rest } : { type, ...rest };
 ---
 
-<Tag class:list={['button', `button--${variant}`, `button--${size}`, { 'button--block': block }, className]} {...attrs}>
+<Tag class:list={['button', `button--${variant}`, className]} {...attrs}>
   {icon && iconPosition === 'start' && <Glyph name={icon} size={20} class="button__icon" />}
   <span class="button__label"><slot /></span>
   {icon && iconPosition === 'end' && <Glyph name={icon} size={20} class="button__icon" />}
@@ -87,17 +83,6 @@ const attrs = href ? { href, ...rest } : { type, ...rest };
     transform: translateY(1px);
   }
 
-  .button--small {
-    min-height: 2.5rem;
-    padding: 0.375rem 0.875rem;
-    font-size: var(--step--1);
-  }
-
-  .button--block {
-    display: flex;
-    width: 100%;
-  }
-
   .button--secondary {
     --button-bg: transparent;
     --button-fg: var(--tone-link);
@@ -105,19 +90,6 @@ const attrs = href ? { href, ...rest } : { type, ...rest };
   }
 
   .button--secondary:hover {
-    --button-bg: var(--color-surface-sunken);
-    --button-fg: var(--color-primary-strong);
-    --button-border: var(--color-primary-strong);
-  }
-
-  .button--pill {
-    --button-bg: var(--color-surface-raised);
-    --button-fg: var(--color-primary);
-    --button-border: var(--color-border-strong);
-    border-radius: var(--radius-pill);
-  }
-
-  .button--pill:hover {
     --button-bg: var(--color-surface-sunken);
     --button-fg: var(--color-primary-strong);
     --button-border: var(--color-primary-strong);
@@ -171,34 +143,15 @@ const attrs = href ? { href, ...rest } : { type, ...rest };
     transform: translateX(3px);
   }
 
-  /* Dark bands */
-  :global(.tone-inverse) .button--primary,
-  :global(.tone-primary) .button--primary {
+  /* Dark bands: the primary button inverts to paper */
+  :global(.tone-inverse) .button--primary {
     --button-bg: var(--color-surface);
     --button-fg: var(--color-primary-strong);
     --button-border: var(--color-surface);
   }
 
-  :global(.tone-inverse) .button--primary:hover,
-  :global(.tone-primary) .button--primary:hover {
+  :global(.tone-inverse) .button--primary:hover {
     --button-bg: var(--color-surface-raised);
     --button-border: var(--color-surface-raised);
-  }
-
-  :global(.tone-inverse) .button--secondary,
-  :global(.tone-primary) .button--secondary,
-  :global(.tone-inverse) .button--pill,
-  :global(.tone-primary) .button--pill {
-    --button-bg: transparent;
-    --button-fg: var(--color-text-on-dark);
-    --button-border: rgba(247, 245, 240, 0.5);
-  }
-
-  :global(.tone-inverse) .button--secondary:hover,
-  :global(.tone-primary) .button--secondary:hover,
-  :global(.tone-inverse) .button--pill:hover,
-  :global(.tone-primary) .button--pill:hover {
-    --button-bg: rgba(247, 245, 240, 0.1);
-    --button-border: var(--color-text-on-dark);
   }
 </style>

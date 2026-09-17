@@ -4,7 +4,7 @@
  * Tone switches the palette for everything inside via the --tone-* tokens.
  */
 export interface Props {
-  tone?: 'surface' | 'sunken' | 'inverse' | 'primary' | 'raised';
+  tone?: 'surface' | 'sunken' | 'inverse';
   padding?: 'default' | 'tight' | 'none';
   id?: string;
   class?: string;
@@ -39,12 +39,4 @@ const { tone = 'surface', padding = 'default', id, class: className, as: Tag = '
     padding-block: var(--space-section-tight);
   }
 
-  .band--none {
-    padding-block: 0;
-  }
-
-  /* Adjacent surface bands would otherwise stack two section paddings */
-  .band--default:not([class*='tone-']) + .band--default:not([class*='tone-']) {
-    padding-block-start: 0;
-  }
 </style>
