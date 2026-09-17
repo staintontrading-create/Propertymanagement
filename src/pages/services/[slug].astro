@@ -85,10 +85,8 @@ const jsonLd = [
     <Breadcrumb items={[{ label: 'Home', path: '/' }, { label: 'Services', path: '/services/' }, { label: `${service.code} ${service.name}` }]} />
   </div>
 
-  <Hero variant="service" eyebrow={`${service.code} · ${group.label}`} title={service.headline} lead={service.promise}>
-    <p class="service-hero__name">
-      <span class="eyebrow">{service.eyebrow}</span>
-    </p>
+  <Hero variant="service" eyebrow={`${service.code} · ${group.label}`} title={service.name} lead={service.headline}>
+    <p class="hero__promise">{service.promise}</p>
     <Fragment slot="actions">
       <Button href="#quote">Request a quote for this service</Button>
       <Button variant="secondary" href={url(`/contact/?service=${slug}`)}>Talk to us</Button>
@@ -206,10 +204,6 @@ const jsonLd = [
 </BaseLayout>
 
 <style>
-  .service-hero__name {
-    margin-block-start: var(--space-3);
-  }
-
   :global(.hero-keytag.key-tag.key-tag--peek) {
     max-width: calc(18rem + 2rem);
   }

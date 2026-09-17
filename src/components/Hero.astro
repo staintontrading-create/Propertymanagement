@@ -82,9 +82,15 @@ const hasMobileVisual = Astro.slots.has('visual-mobile');
     max-width: 26ch;
   }
 
-  /* Service headlines are full sentences: one step down keeps them to three or four lines */
+  /* The service name is the page title: its own step, above every section h2 (step-3) and below the home h1 (step-4) */
   .hero--service .hero__title {
-    font-size: var(--step-3);
+    font-size: var(--step-title);
+    line-height: var(--leading-heading);
+  }
+
+  /* The headline is the lead line under the name; the promise follows in body size */
+  .hero--service .hero__lead {
+    max-width: 30ch;
   }
 
   .hero__lead {

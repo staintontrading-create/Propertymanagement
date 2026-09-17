@@ -64,8 +64,6 @@ export interface Service {
   name: string;
   /** Short label for navigation and the footer when the name is long. */
   navLabel: string;
-  /** Category eyebrow shown above the h1, e.g. "For new-build buyers" */
-  eyebrow: string;
   /**
    * One short sentence in the hero and on cards, e.g.
    * "Small jobs, fixed properly, priced before we start."
