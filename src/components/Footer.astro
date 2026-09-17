@@ -76,6 +76,12 @@ const social = [
     padding-block: var(--space-8) var(--space-6);
   }
 
+  /* After the contact strip the two dark bands read as one: a hairline and less air between them */
+  :global(.contact-strip) + .site-footer {
+    border-top: 1px solid var(--tone-border);
+    padding-block-start: var(--space-6);
+  }
+
   .site-footer__grid {
     display: grid;
     gap: var(--space-6);

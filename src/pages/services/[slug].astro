@@ -55,11 +55,6 @@ const slotProps = (slot: (typeof service.photoSlots)[number]) => ({
 });
 
 /** Which artefact sits in the reporting section, if any (the hero artefact is chosen in the template). */
-/** Pricing copy is one long string; split it into paragraphs of two or three sentences for the page. */
-const pricingSentences = service.pricing.match(/[^.!?]+[.!?]+(?:\s|$)/g)?.map((s) => s.trim()) ?? [service.pricing];
-const pricingParagraphs: string[] = [];
-for (let i = 0; i < pricingSentences.length; i += 2) pricingParagraphs.push(pricingSentences.slice(i, i + 2).join(' '));
-
 const hasReportingArtefact = ['property-management', 'renovations', 'property-handovers', 'property-inspections', 'holiday-home-maintenance'].includes(slug);
 
 const jsonLd = [
@@ -191,7 +186,7 @@ const jsonLd = [
     <div class="split pricing">
       <SectionHeading eyebrow="Pricing" title="How this service is priced." />
       <div class="pricing__text flow">
-        {pricingParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+        {service.pricing.map((paragraph) => <p>{paragraph}</p>)}
       </div>
     </div>
     <QuoteRequestPanel id="quote" preselect={slug} heading={`Request a written scope for ${service.name.toLowerCase()}`} />
@@ -297,7 +292,9 @@ const jsonLd = [
       justify-items: end;
       /* The deliverables list is long; the artefact and photograph follow the reader down it */
       position: sticky;
-      top: var(--space-4);
+      top: calc(var(--header-height) + var(--space-4));
+      max-height: calc(100dvh - var(--header-height) - var(--space-4));
+      overflow: auto;
     }
   }
 </style>

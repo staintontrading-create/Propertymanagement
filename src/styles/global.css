@@ -103,9 +103,6 @@
 
   /* Patterns */
   --pattern-hatch: repeating-linear-gradient(45deg, rgba(20, 42, 53, 0.06) 0 1px, transparent 1px 8px);
-  --pattern-plan-grid: linear-gradient(var(--color-border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
-  --pattern-plan-size: 48px 48px;
   --photo-warm-overlay: rgba(184, 134, 43, 0.07);
 
   color-scheme: light;

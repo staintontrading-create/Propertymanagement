@@ -19,8 +19,9 @@ const { position = 'right', class: className } = Astro.props;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: var(--pattern-plan-grid);
-    background-size: var(--pattern-plan-size);
+    /* Declared here, not on :root, so the tone's hairline colour is the one used on each band */
+    background-image: linear-gradient(var(--tone-border) 1px, transparent 1px), linear-gradient(90deg, var(--tone-border) 1px, transparent 1px);
+    background-size: 48px 48px;
     opacity: 0.9;
   }
 
@@ -35,6 +36,7 @@ const { position = 'right', class: className } = Astro.props;
   }
 
   :global(.tone-inverse) .plan-grid {
-    --color-border: rgba(247, 245, 240, 0.14);
+    /* the dark band's hairline is already paper at 18% alpha; damp it further so it stays behind the text */
+    opacity: 0.6;
   }
 </style>

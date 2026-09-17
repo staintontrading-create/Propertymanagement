@@ -94,8 +94,12 @@ export interface Service {
     format: string;
     channel: string;
   };
-  /** How the service is priced and what the written scope contains. No figures. */
-  pricing: string;
+  /**
+   * How the service is priced and what the written scope contains, one entry
+   * per paragraph so the author, not a sentence splitter, decides the breaks.
+   * No figures.
+   */
+  pricing: string[];
   /** Four to six questions owners actually ask, with specific answers. */
   faqs: Faq[];
   /** Two or three related services, by slug. */
